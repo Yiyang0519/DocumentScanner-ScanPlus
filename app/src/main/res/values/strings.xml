@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ScanPlus+</string>
+    <string name="scan">Scan</string>
+    <string name="rename_pdf">Rename Pdf</string>
+    <string name="pdf_name">Pdf Name</string>
+    <string name="cancel">Cancel</string>
+    <string name="update">Update</string>
+    <string name="privacyScreenTitle">Privacy Screen</string>
+    <string name="policyScreenTitle">Policy Screen</string>
+    <string name="passwordErrorMsg">Password Is Not Matching!</string>
+    <string name="finish">Finish</string>
+</resources>

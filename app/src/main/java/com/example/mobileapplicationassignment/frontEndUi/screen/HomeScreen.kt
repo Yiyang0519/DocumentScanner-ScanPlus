@@ -8,6 +8,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -134,7 +135,7 @@ fun HomeScreen(pdfViewModel : PdfViewModel){
                         uncheckedTrackColor = MaterialTheme.colorScheme.onBackground
                     ))
             },colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background))
+                containerColor = MaterialTheme.colorScheme.background))
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
@@ -150,7 +151,7 @@ fun HomeScreen(pdfViewModel : PdfViewModel){
                 Text(text = stringResource(id = R.string.scan))
             }, icon = {
                 Icon(painter= painterResource(id = R.drawable.camera), contentDescription = "camera")
-            }, containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.background,shape = RoundedCornerShape(50), modifier = Modifier.padding(6.dp))
+            }, containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.background,shape = RoundedCornerShape(50), modifier = Modifier.padding(2.dp).offset(y = (-80).dp))
         }
     ){paddingValue ->
         pdfState.DisplayResult(onLoading = {

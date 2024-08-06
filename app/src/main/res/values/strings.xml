@@ -9,4 +9,8 @@
     <string name="policyScreenTitle">Policy Screen</string>
     <string name="passwordErrorMsg">Password Is Not Matching!</string>
     <string name="finish">Finish</string>
+    <string name="EditProfile">Customise your profile</string>
+    <string name="Settings">Adjust your preferences</string>
+    <string name="FAQs">Frequently asked questions</string>
+    <string name="Logout">Sign out of your account</string>
 </resources>

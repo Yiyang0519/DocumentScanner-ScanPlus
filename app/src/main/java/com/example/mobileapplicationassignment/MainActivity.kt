@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
+import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
@@ -146,7 +147,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ){
-                        UserProfile()
+                        ToolsScreen()
                         //HomeScreen(pdfViewModel)
                     }
 

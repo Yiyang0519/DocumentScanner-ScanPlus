@@ -23,9 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mobileapplicationassignment.R
-import com.example.mobileapplicationassignment.frontEndUi.components.CreateImageProfile
-import com.example.mobileapplicationassignment.frontEndUi.components.CreateProfileInfo
-import com.example.mobileapplicationassignment.frontEndUi.components.ProfileCategory
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 
 @Composable

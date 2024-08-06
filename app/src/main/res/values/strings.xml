@@ -13,4 +13,7 @@
     <string name="Settings">Adjust your preferences</string>
     <string name="FAQs">Frequently asked questions</string>
     <string name="Logout">Sign out of your account</string>
+    <string name="text_recognition">Extract text from images</string>
+    <string name="PDF_converter">Convert file to PDF</string>
+    <string name="Add_files">Import images or files from your device</string>
 </resources>

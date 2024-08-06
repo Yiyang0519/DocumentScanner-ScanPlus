@@ -1,4 +1,4 @@
-package com.example.mobileapplicationassignment.frontEndUi.components
+package com.example.mobileapplicationassignment.frontEndUi.userProfile
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

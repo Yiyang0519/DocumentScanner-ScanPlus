@@ -1,4 +1,4 @@
-package com.example.mobileapplicationassignment.frontEndUi.components
+package com.example.mobileapplicationassignment.frontEndUi.userProfile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

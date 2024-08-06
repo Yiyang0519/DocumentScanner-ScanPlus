@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ){
-                        PolicyScreen()
+                        UserProfile()
                         //HomeScreen(pdfViewModel)
                     }
 

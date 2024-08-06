@@ -26,7 +26,7 @@ fun CreateImageProfile(
     Surface (
         modifier = Modifier
             .size(154.dp)
-            .padding(5.dp),
+            .padding(10.dp),
         shape = CircleShape,
         border = BorderStroke(0.5.dp, Color.LightGray),
         shadowElevation = 4.dp,

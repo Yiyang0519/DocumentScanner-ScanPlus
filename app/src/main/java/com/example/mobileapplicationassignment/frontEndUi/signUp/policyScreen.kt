@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,8 +24,11 @@ import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignm
 @Composable
 fun PolicyScreen(){
     Box(
-        Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        Modifier
+            .fillMaxSize()
+            .padding(25.dp)
+            .verticalScroll(rememberScrollState()),
+        contentAlignment = Alignment.TopCenter
 
     ){
         Column (
@@ -31,7 +36,7 @@ fun PolicyScreen(){
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ){
             Text(text = stringResource(id = R.string.policyScreenTitle),
                 fontWeight = FontWeight.Bold,

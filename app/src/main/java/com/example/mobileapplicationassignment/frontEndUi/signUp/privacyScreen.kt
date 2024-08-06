@@ -27,14 +27,14 @@ fun PrivacyScreen(){
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ){
         Column (
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ){
             Text(text = stringResource(id = R.string.privacyScreenTitle),
                 fontWeight = FontWeight.Bold,

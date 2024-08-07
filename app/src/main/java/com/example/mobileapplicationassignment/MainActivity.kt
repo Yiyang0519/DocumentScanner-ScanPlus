@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
+import com.example.mobileapplicationassignment.frontEndUi.settings.UserSettings
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
@@ -147,7 +148,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ){
-                        UserProfile()
+                        UserSettings(currentNickname = "Andrew Yeo", currentEmail = "junken03@gmail.com")
                         //HomeScreen(pdfViewModel)
                     }
 

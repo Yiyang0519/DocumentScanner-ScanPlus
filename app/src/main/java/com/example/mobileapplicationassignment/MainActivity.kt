@@ -41,6 +41,7 @@ import com.example.mobileapplicationassignment.frontEndUi.settings.GeneralSettin
 import com.example.mobileapplicationassignment.frontEndUi.settings.UserSettings
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
+import com.example.mobileapplicationassignment.frontEndUi.tools.TextRecognition
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
@@ -149,7 +150,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ){
-                        GeneralSettings()
+                        TextRecognition()
                         //UserSettings(currentNickname = "Andrew Yeo", currentEmail = "junken03@gmail.com")
                         //HomeScreen(pdfViewModel)
                     }

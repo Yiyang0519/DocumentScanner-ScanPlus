@@ -90,7 +90,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     //Google's ML Kit
+    // To recognize Latin script
     implementation (libs.text.recognition)
+    // To recognize Chinese script
+    implementation (libs.google.text.recognition.chinese)
     implementation (libs.androidx.camera.camera2)
     implementation (libs.androidx.camera.lifecycle)
     implementation (libs.androidx.camera.view)

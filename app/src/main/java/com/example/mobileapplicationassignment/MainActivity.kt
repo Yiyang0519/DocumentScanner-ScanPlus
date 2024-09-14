@@ -151,9 +151,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ){
-                        ImageFileImport()
+                        //ImageFileImport()
                         //UserSettings(currentNickname = "Andrew Yeo", currentEmail = "junken03@gmail.com")
-                        //HomeScreen(pdfViewModel)
+                        HomeScreen(pdfViewModel)
                     }
 
 

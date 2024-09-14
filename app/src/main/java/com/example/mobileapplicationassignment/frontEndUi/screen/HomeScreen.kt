@@ -7,7 +7,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,19 +25,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.common.ErrorScreen
@@ -59,7 +67,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(pdfViewModel : PdfViewModel){
+fun HomeScreen(pdfViewModel: PdfViewModel) {
     LoadingScreen(pdfViewModel = pdfViewModel)
     RenameDeleteDialog(pdfViewModel = pdfViewModel)
 
@@ -69,9 +77,11 @@ fun HomeScreen(pdfViewModel : PdfViewModel){
     val pdfState by pdfViewModel.pdfStateFlow.collectAsState()
     val message = pdfViewModel.message
 
-    LaunchedEffect (Unit) {
-        message.collect{
-            when(it) {
+    var searchQuery by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        message.collect {
+            when (it) {
                 is Resource.Success -> {
                     context.showToast(it.data)
                 }
@@ -86,31 +96,36 @@ fun HomeScreen(pdfViewModel : PdfViewModel){
         }
     }
 
-    val scannerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val scanningResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
+    val scannerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val scanningResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
 
-            scanningResult?.pdf?.let { pdf ->
-                Log.d("pdfName", pdf.uri.lastPathSegment.toString())
+                scanningResult?.pdf?.let { pdf ->
+                    Log.d("pdfName", pdf.uri.lastPathSegment.toString())
 
-                val date = Date()
-                val fileName = SimpleDateFormat(
-                    "dd-MM-yyyy HH:mm:ss",
-                    Locale.getDefault()
-                ).format(date) + ".pdf"
+                    val date = Date()
+                    val fileName = SimpleDateFormat(
+                        "dd-MM-yyyy HH:mm:ss",
+                        Locale.getDefault()
+                    ).format(date) + ".pdf"
 
-                copyPdfFileToAppDirectory(
-                    context,
-                    pdf.uri, fileName
-                )
+                    copyPdfFileToAppDirectory(
+                        context,
+                        pdf.uri, fileName
+                    )
 
-                val pdfEntity=PdfEntity(UUID.randomUUID().toString(),fileName, getFileSize(context,fileName), date)
+                    val pdfEntity = PdfEntity(
+                        UUID.randomUUID().toString(),
+                        fileName,
+                        getFileSize(context, fileName),
+                        date
+                    )
 
-                pdfViewModel.insertPdf(pdfEntity)
+                    pdfViewModel.insertPdf(pdfEntity)
+                }
             }
         }
-    }
-
 
     val scanner = remember {
         GmsDocumentScanning.getClient(
@@ -121,65 +136,119 @@ fun HomeScreen(pdfViewModel : PdfViewModel){
         )
     }
 
-
-    Scaffold (
+    Scaffold(
         topBar = @Composable {
-            TopAppBar(title = {
-                Text(text = stringResource(id = R.string.app_name))
-            }, actions = {
-                Switch(checked = pdfViewModel.isDarkMode, onCheckedChange = {pdfViewModel.isDarkMode = it},
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.background,
-                        uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary,
-                        uncheckedTrackColor = MaterialTheme.colorScheme.onBackground
-                    ))
-            },colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background))
+            TopAppBar(
+                title = {
+                    Text(text = stringResource(id = R.string.app_name))
+                },
+                actions = {
+                    Switch(
+                        checked = pdfViewModel.isDarkMode,
+                        onCheckedChange = { pdfViewModel.isDarkMode = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.background,
+                            uncheckedThumbColor = MaterialTheme.colorScheme.background,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = {
-                scanner.getStartScanIntent(activity).addOnSuccessListener {
-                    scannerLauncher.launch(
-                        IntentSenderRequest.Builder(it).build()
+            ExtendedFloatingActionButton(
+                onClick = {
+                    scanner.getStartScanIntent(activity).addOnSuccessListener {
+                        scannerLauncher.launch(
+                            IntentSenderRequest.Builder(it).build()
+                        )
+                    }.addOnFailureListener() {
+                        it.printStackTrace()
+                        context.showToast(it.message.toString())
+                    }
+                },
+                text = {
+                    Text(text = stringResource(id = R.string.scan))
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.camera),
+                        contentDescription = "camera"
                     )
-                }.addOnFailureListener(){
-                    it.printStackTrace()
-                    context.showToast(it.message.toString())
-                }
-            }, text = {
-                Text(text = stringResource(id = R.string.scan))
-            }, icon = {
-                Icon(painter= painterResource(id = R.drawable.camera), contentDescription = "camera")
-            }, containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.background,shape = RoundedCornerShape(50), modifier = Modifier.padding(2.dp).offset(y = (-80).dp))
-        }
-    ){paddingValue ->
-        pdfState.DisplayResult(onLoading = {
-//        Box(
-//            modifier = Modifier
-//                .size(100.dp),
-//            contentAlignment = Alignment.Center
-//        ){
-//            CircularProgressIndicator()
-//        }
-        }, onSuccess = {pdfList ->
-            if(pdfList.isEmpty()){
-                ErrorScreen(message = "No PDF")
-            }
-            LazyColumn (
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(50),
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValue)
-            ){
-                items(items = pdfList, key={pdfEntity ->
-                    pdfEntity.id
-                }){pdfEntity ->
-                    PdfLayout(pdfEntity = pdfEntity, pdfViewModel = pdfViewModel)
+                    .padding(2.dp)
+                    .offset(y = (-80).dp)
+            )
+        }
+    ) { paddingValue ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValue)
+        ) {
+            // Search Bar
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .padding(horizontal = 16.dp) // Adjust padding as needed
+                    .padding(top = 8.dp) // Space between search bar and content
+                    .fillMaxWidth(),
+                placeholder = {
+                    Text(text = stringResource(id = R.string.search_pdf))
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
+                        contentDescription = "Search Icon"
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                shape = RoundedCornerShape(12.dp) // Rounded corners
+            )
+
+
+            // Display Result - Only filter the list if the search query is not empty
+            pdfState.DisplayResult(onLoading = {
+                // Loading UI
+            }, onSuccess = { pdfList ->
+                val filteredList = if (searchQuery.isEmpty()) {
+                    pdfList // Show all PDFs by default
+                } else {
+                    pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) } // Filtered list based on `name`
                 }
-            }
-        }, onError = {
-            ErrorScreen(message = it)
+
+                if (filteredList.isEmpty()) {
+                    ErrorScreen(message = "No PDF found")
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp) // Reduced padding
+                            .padding(top = 8.dp) // Added top padding for spacing
+                    ) {
+                        items(items = filteredList, key = { pdfEntity ->
+                            pdfEntity.id
+                        }) { pdfEntity ->
+                            PdfLayout(pdfEntity = pdfEntity, pdfViewModel = pdfViewModel)
+                        }
+                    }
+                }
+            }, onError = {
+                ErrorScreen(message = it)
             })
 
         }
+    }
 }
+

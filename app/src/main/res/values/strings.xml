@@ -16,4 +16,5 @@
     <string name="text_recognition">Extract text from images</string>
     <string name="PDF_converter">Convert file to PDF</string>
     <string name="Add_files">Import images or files from your device</string>
+    <string name="search_pdf">Search pdf...</string>
 </resources>

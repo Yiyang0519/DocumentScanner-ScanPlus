@@ -42,7 +42,7 @@ fun ToolsScreen(){
     val toolItems = listOf(
         ToolItems("Text Recognition", R.drawable.text_recognition, stringResource(id = R.string.text_recognition)),
         ToolItems("PDF Converter", R.drawable.pdf_converter, stringResource(id = R.string.PDF_converter)),
-        ToolItems("Text Recognition", R.drawable.add_files, stringResource(id = R.string.Add_files)),
+        ToolItems("Image & File Import", R.drawable.add_files, stringResource(id = R.string.Add_files)),
     )
     Surface (
         modifier = Modifier

@@ -37,9 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
+import com.example.mobileapplicationassignment.frontEndUi.settings.GeneralSettings
 import com.example.mobileapplicationassignment.frontEndUi.settings.UserSettings
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
+import com.example.mobileapplicationassignment.frontEndUi.tools.ImageFileImport
+import com.example.mobileapplicationassignment.frontEndUi.tools.TextRecognition
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
@@ -148,7 +151,8 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ){
-                        UserSettings(currentNickname = "Andrew Yeo", currentEmail = "junken03@gmail.com")
+                        ImageFileImport()
+                        //UserSettings(currentNickname = "Andrew Yeo", currentEmail = "junken03@gmail.com")
                         //HomeScreen(pdfViewModel)
                     }
 

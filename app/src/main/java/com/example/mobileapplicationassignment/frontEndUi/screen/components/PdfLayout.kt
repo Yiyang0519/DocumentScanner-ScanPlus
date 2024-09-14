@@ -2,6 +2,7 @@ package com.example.mobileapplicationassignment.frontEndUi.screen.components
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.mobileapplicationassignment.R
@@ -47,22 +49,24 @@ fun PdfLayout(pdfEntity: PdfEntity, pdfViewModel: PdfViewModel) {
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                modifier = Modifier.size(60.dp),
-                painter = painterResource(id = R.drawable.ic_pdf),
+            Image(
+                painter = painterResource(id = R.drawable.pdf_icon),
                 contentDescription = null,
-                tint = Color.White
+                modifier = Modifier.size(60.dp) // Adjust size as needed
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Title: ${pdfEntity.name}",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = pdfEntity.name,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Size: ${pdfEntity.size}",

@@ -49,7 +49,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TextRecognition (){
+fun TextRecognition(){
     val context = LocalContext.current
 
     val bitmapState: MutableState<Bitmap?> = remember {

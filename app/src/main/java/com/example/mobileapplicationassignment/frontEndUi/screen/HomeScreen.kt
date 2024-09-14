@@ -6,16 +6,27 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -137,7 +148,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel) {
     }
 
     Scaffold(
-        topBar = @Composable {
+        topBar = {
             TopAppBar(
                 title = {
                     Text(text = stringResource(id = R.string.app_name))
@@ -166,7 +177,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel) {
                         scannerLauncher.launch(
                             IntentSenderRequest.Builder(it).build()
                         )
-                    }.addOnFailureListener() {
+                    }.addOnFailureListener {
                         it.printStackTrace()
                         context.showToast(it.message.toString())
                     }
@@ -199,8 +210,8 @@ fun HomeScreen(pdfViewModel: PdfViewModel) {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 modifier = Modifier
-                    .padding(horizontal = 16.dp) // Adjust padding as needed
-                    .padding(top = 8.dp) // Space between search bar and content
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp)
                     .fillMaxWidth(),
                 placeholder = {
                     Text(text = stringResource(id = R.string.search_pdf))
@@ -214,41 +225,174 @@ fun HomeScreen(pdfViewModel: PdfViewModel) {
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                shape = RoundedCornerShape(12.dp) // Rounded corners
+                shape = RoundedCornerShape(12.dp)
             )
 
+            // Function Buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 32.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                FunctionButton(
+                    imageResId = R.drawable.scan_icon,
+                    text = "Extract Text",
+                    onClick = {
+                        // TODO: Add navigation to TextRecognition() screen here
+                    }
+                )
 
-            // Display Result - Only filter the list if the search query is not empty
-            pdfState.DisplayResult(onLoading = {
-                // Loading UI
-            }, onSuccess = { pdfList ->
-                val filteredList = if (searchQuery.isEmpty()) {
-                    pdfList // Show all PDFs by default
-                } else {
-                    pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) } // Filtered list based on `name`
-                }
+                FunctionButton(
+                    imageResId = R.drawable.pdf_converter,
+                    text = "PDF Tools",
+                    onClick = {
+                        // TODO: Add navigation to PDFTools() screen here
+                    }
+                )
 
-                if (filteredList.isEmpty()) {
-                    ErrorScreen(message = "No PDF found")
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp) // Reduced padding
-                            .padding(top = 8.dp) // Added top padding for spacing
-                    ) {
-                        items(items = filteredList, key = { pdfEntity ->
-                            pdfEntity.id
-                        }) { pdfEntity ->
-                            PdfLayout(pdfEntity = pdfEntity, pdfViewModel = pdfViewModel)
+                FunctionButton(
+                    imageResId = R.drawable.photo,
+                    text = "Import Images",
+                    onClick = {
+                        // TODO: Add navigation to ImportImages() screen here
+                    }
+                )
+
+                FunctionButton(
+                    imageResId = R.drawable.import_folder,
+                    text = "Import Files",
+                    onClick = {
+                        // TODO: Add navigation to ImportFiles() screen here
+                    }
+                )
+            }
+
+            // Recents Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically // Align items vertically in the center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_arrow_drop_down_24),
+                    contentDescription = "Dropdown",
+                    tint = MaterialTheme.colorScheme.onBackground, // Adjust color if needed
+                    modifier = Modifier.size(24.dp) // Adjust size as needed
+                )
+
+                Spacer(modifier = Modifier.width(8.dp)) // Space between icon and text
+
+                Text(
+                    text = "Recents",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+
+            // Display Result - PDF Section
+            pdfState.DisplayResult(
+                onLoading = {
+                    // Loading UI
+                },
+                onSuccess = { pdfList ->
+
+                    val filteredList = if (searchQuery.isEmpty()) {
+                        pdfList
+                    } else {
+                        pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) }
+                    }
+
+                    // Limit to a maximum of 5 items
+                    val limitedList = filteredList.take(5)
+
+                    if (limitedList.isEmpty()) {
+                        ErrorScreen(message = "No PDF found")
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 8.dp)
+                        ) {
+                            items(
+                                items = limitedList,
+                                key = { pdfEntity -> pdfEntity.id }
+                            ) { pdfEntity ->
+                                PdfLayout(pdfEntity = pdfEntity, pdfViewModel = pdfViewModel)
+                            }
+
+                            // Add the vector asset icon at the bottom center before the last padding
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_more_horiz_24),
+                                        contentDescription = "More options",
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+
+                            // Add a large space at the bottom
+                            item {
+                                Spacer(modifier = Modifier.height(100.dp)) // Adjust height as needed
+                            }
                         }
                     }
+                },
+                onError = {
+                    ErrorScreen(message = it)
                 }
-            }, onError = {
-                ErrorScreen(message = it)
-            })
-
+            )
         }
     }
 }
+
+
+@Composable
+fun FunctionButton(imageResId: Int, text: String, onClick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Round Button with Icon and Custom Background + Border
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .size(64.dp), // Size of the round button
+            shape = CircleShape, // Round shape
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color(0xFFF7FDF6) // Custom background color
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary), // Border color and width
+            contentPadding = PaddingValues(0.dp) // No inner padding
+        ) {
+            Icon(
+                painter = painterResource(id = imageResId),
+                contentDescription = text,
+                modifier = Modifier.size(40.dp), // Icon size
+                tint = Color.Unspecified // Disable tint to check image visibility
+            )
+        }
+        // Text below the button
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp), // Space between button and text
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
+
+
+
+
 

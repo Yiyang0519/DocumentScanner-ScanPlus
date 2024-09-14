@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -236,34 +238,42 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
 
 
             // Display Result - Only filter the list if the search query is not empty
-            pdfState.DisplayResult(onLoading = {
-                // Loading UI
-            }, onSuccess = { pdfList ->
-                val filteredList = if (searchQuery.isEmpty()) {
-                    pdfList // Show all PDFs by default
-                } else {
-                    pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) } // Filtered list based on `name`
-                }
+            pdfState.DisplayResult(
+                onLoading = {
+                    // Loading UI
+                },
+                onSuccess = { pdfList ->
+                    val filteredList = if (searchQuery.isEmpty()) {
+                        pdfList // Show all PDFs by default
+                    } else {
+                        pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) } // Filtered list based on `name`
+                    }
 
-                if (filteredList.isEmpty()) {
-                    ErrorScreen(message = "No PDF found")
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp) // Reduced padding
-                            .padding(top = 8.dp) // Added top padding for spacing
-                    ) {
-                        items(items = filteredList, key = { pdfEntity ->
-                            pdfEntity.id
-                        }) { pdfEntity ->
-                            PdfLayout(pdfEntity = pdfEntity, pdfViewModel = pdfViewModel)
+                    if (filteredList.isEmpty()) {
+                        ErrorScreen(message = "No PDF found")
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp) // Reduced padding
+                                .padding(top = 8.dp) // Added top padding for spacing
+                        ) {
+                            items(items = filteredList, key = { pdfEntity -> pdfEntity.id }) { pdfEntity ->
+                                PdfLayout(pdfEntity = pdfEntity, pdfViewModel = pdfViewModel)
+                            }
+
+                            // Add a large space at the bottom
+                            item {
+                                Spacer(modifier = Modifier.height(100.dp)) // Adjust height as needed
+                            }
                         }
                     }
+                },
+                onError = {
+                    ErrorScreen(message = it)
                 }
-            }, onError = {
-                ErrorScreen(message = it)
-            })
+            )
+
 
         }
     }

@@ -118,4 +118,15 @@ class PdfViewModel(application: Application):ViewModel() {
             }
         }
     }
+
+    fun getPdfCount(): StateFlow<Int> {
+        val pdfCountFlow = MutableStateFlow(0)
+        viewModelScope.launch(Dispatchers.IO) {
+            pdfRepository.getPdfList().collect { pdfList ->
+                pdfCountFlow.value = pdfList.size
+            }
+        }
+        return pdfCountFlow
+    }
+
 }

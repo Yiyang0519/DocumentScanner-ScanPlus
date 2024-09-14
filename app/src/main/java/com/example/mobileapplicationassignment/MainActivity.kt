@@ -26,23 +26,17 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.mobileapplicationassignment.frontEndUi.pdfLists.PdfListsScreen
 import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
-import com.example.mobileapplicationassignment.frontEndUi.settings.GeneralSettings
-import com.example.mobileapplicationassignment.frontEndUi.settings.UserSettings
-import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
-import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
-import com.example.mobileapplicationassignment.frontEndUi.tools.ImageFileImport
-import com.example.mobileapplicationassignment.frontEndUi.tools.TextRecognition
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
@@ -58,21 +52,25 @@ data class BottomNavItem(
 )
 
 class MainActivity : ComponentActivity() {
-    private val pdfViewModel by viewModels<PdfViewModel>{
+    private val pdfViewModel by viewModels<PdfViewModel> {
         viewModelFactory {
-            addInitializer(PdfViewModel::class){
+            addInitializer(PdfViewModel::class) {
                 PdfViewModel(application)
             }
         }
     }
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen=installSplashScreen()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            splashScreen.setKeepOnScreenCondition{pdfViewModel.isSplashScreen}
-            MobileApplicationAssignmentTheme (pdfViewModel.isDarkMode,false){
+            splashScreen.setKeepOnScreenCondition { pdfViewModel.isSplashScreen }
+
+            val pdfCount by pdfViewModel.getPdfCount().collectAsState(initial = 0)
+
+            MobileApplicationAssignmentTheme(pdfViewModel.isDarkMode, false) {
                 val items = listOf(
                     BottomNavItem(
                         title = "Scan",
@@ -85,7 +83,7 @@ class MainActivity : ComponentActivity() {
                         selectedIcon = Icons.AutoMirrored.Filled.List,
                         unselectedIcon = Icons.AutoMirrored.Outlined.List,
                         hasNews = false,
-                        badgeCount = 10
+                        badgeCount = pdfCount
                     ),
                     BottomNavItem(
                         title = "Tools",
@@ -105,38 +103,38 @@ class MainActivity : ComponentActivity() {
                     mutableIntStateOf(0)
                 }
 
-                Surface (
+                Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ){
-                    Scaffold (
+                ) {
+                    Scaffold(
                         bottomBar = {
                             NavigationBar {
                                 items.forEachIndexed { index, item ->
                                     NavigationBarItem(
                                         selected = selectedItemIndex == index,
                                         onClick = {
-                                            selectedItemIndex =index
+                                            selectedItemIndex = index
                                         },
                                         label = {
                                             Text(text = item.title)
                                         },
-                                        icon = { 
+                                        icon = {
                                             BadgedBox(
                                                 badge = {
-                                                    if(item.badgeCount != null){
+                                                    if (item.badgeCount != null) {
                                                         Badge {
                                                             Text(text = item.badgeCount.toString())
                                                         }
-                                                    }else if(item.hasNews){
+                                                    } else if (item.hasNews) {
                                                         Badge()
                                                     }
                                                 }
                                             ) {
                                                 Icon(
-                                                    imageVector = if(index == selectedItemIndex){
+                                                    imageVector = if (index == selectedItemIndex) {
                                                         item.selectedIcon
-                                                    }else item.unselectedIcon,
+                                                    } else item.unselectedIcon,
                                                     contentDescription = item.title
                                                 )
                                             }
@@ -150,17 +148,20 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    ){
-                        //ImageFileImport()
-                        //UserSettings(currentNickname = "Andrew Yeo", currentEmail = "junken03@gmail.com")
-                        HomeScreen(pdfViewModel)
+                    ) { paddingValues ->
+                        when (selectedItemIndex) {
+                            0 -> HomeScreen(pdfViewModel) // Scan screen
+                            1 -> PdfListsScreen(pdfViewModel) // Lists screen
+                            2 -> ToolsScreen() // Tools screen
+                            3 -> UserProfile() // Account screen
+                        }
                     }
-
-
                 }
             }
         }
     }
 }
+
+
 
 

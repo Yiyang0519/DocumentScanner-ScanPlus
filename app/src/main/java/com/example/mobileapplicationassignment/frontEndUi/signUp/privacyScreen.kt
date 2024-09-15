@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 
 @Composable
-fun PrivacyScreen(){
+fun PrivacyScreen(navController: NavController){
     Box(
         Modifier
             .fillMaxSize()
@@ -52,7 +54,7 @@ fun PrivacyScreen(){
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            Button(onClick = {  },
+            Button(onClick = { navController.popBackStack() }, //Here navigate back to registerScreen.kt
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)) {
@@ -66,6 +68,6 @@ fun PrivacyScreen(){
 @Composable
 fun PreviewPrivacyScreen() {
     MobileApplicationAssignmentTheme {
-        PrivacyScreen()
+        PrivacyScreen(navController = rememberNavController())
     }
 }

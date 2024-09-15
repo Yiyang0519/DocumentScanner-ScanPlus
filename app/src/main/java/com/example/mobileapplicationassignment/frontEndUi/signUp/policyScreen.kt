@@ -18,11 +18,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 
 @Composable
-fun PolicyScreen(){
+fun PolicyScreen(navController: NavController){
     Box(
         Modifier
             .fillMaxSize()
@@ -57,7 +59,7 @@ fun PolicyScreen(){
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            Button(onClick = {  },
+            Button(onClick = { navController.popBackStack() }, //Here navigate back to registerScreen.kt
                 modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(text = stringResource(id = R.string.finish))
             }
@@ -69,6 +71,6 @@ fun PolicyScreen(){
 @Composable
 fun PreviewPolicyScreen() {
     MobileApplicationAssignmentTheme {
-        PolicyScreen()
+        PolicyScreen(navController = rememberNavController())
     }
 }

@@ -26,6 +26,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,8 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.mobileapplicationassignment.frontEndUi.login.LoginScreen
 import com.example.mobileapplicationassignment.frontEndUi.pdfLists.PdfListsScreen
 import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
+import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
+import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
+import com.example.mobileapplicationassignment.frontEndUi.signUp.RegisterScreen
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
@@ -159,6 +167,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun InitialNavigation() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "login") {
+        composable("login") { LoginScreen(navController = navController) }
+        composable("register") { RegisterScreen(navController = navController) }
+        composable("privacy") { PrivacyScreen(navController = navController) }
+        composable("policy") { PolicyScreen(navController = navController) }
     }
 }
 

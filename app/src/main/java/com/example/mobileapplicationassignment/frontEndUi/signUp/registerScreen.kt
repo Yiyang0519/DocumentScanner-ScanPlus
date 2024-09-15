@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.mobileapplicationassignment.frontEndUi.signUp
 
 import android.widget.Toast
@@ -34,6 +36,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
 import com.example.mobileapplicationassignment.frontEndUi.components.loginTxtField
@@ -43,7 +47,7 @@ val defaultPadding = 16.dp
 val itemSpacing = 8.dp
 
 @Composable
-fun RegisterScreen(){
+fun RegisterScreen(navController: NavController){
 
     val (firstName,onFirstNameChange) = rememberSaveable {
         mutableStateOf("")
@@ -170,9 +174,13 @@ fun RegisterScreen(){
                 annotatedString.getStringAnnotations(offset,offset).forEach {
                     when(it.tag){
                         privacyText -> {
+                            //Here navigate to privacyScreen.kt
+                            navController.navigate("privacy")
                             Toast.makeText(context, "Privacy Clicked", Toast.LENGTH_SHORT).show()
                         }
                         policyText -> {
+                            //Here navigate to policyScreen.kt
+                            navController.navigate("policy")
                             Toast.makeText(context, "Policy Clicked", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -209,6 +217,8 @@ fun RegisterScreen(){
         ClickableText(text = signInAnnotation) {offset ->
             signInAnnotation.getStringAnnotations(offset,offset).forEach {
                 if(it.tag == signInText){
+                    //Here navigate back to loginScreen.kt
+                    navController.popBackStack()
                    Toast.makeText(context, "Sign In clicked", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -228,7 +238,7 @@ fun RegisterScreen(){
 @Composable
 fun PrevRegisterScreen(){
     MobileApplicationAssignmentTheme {
-        RegisterScreen()
+        RegisterScreen(navController = rememberNavController())
     }
 }
 

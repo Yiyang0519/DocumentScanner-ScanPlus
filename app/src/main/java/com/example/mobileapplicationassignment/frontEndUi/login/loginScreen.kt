@@ -34,6 +34,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
 import com.example.mobileapplicationassignment.frontEndUi.components.loginTxtField
@@ -44,7 +46,7 @@ val defaultPadding = 16.dp
 val itemSpacing = 8.dp
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(navController: NavController){
     val (username,setUserName) = rememberSaveable {
         mutableStateOf("")
     }
@@ -62,7 +64,8 @@ fun LoginScreen(){
     val context = LocalContext.current
 
     Column (
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(defaultPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -122,61 +125,6 @@ fun LoginScreen(){
             Text(text = "Login")
         }
 
-        AlternativeLoginOptions(
-            onIconClick = {index ->
-                when(index){
-                    0 -> {
-                        Toast.makeText(context, "Facebook Login Click", Toast.LENGTH_SHORT).show()
-                    }
-                    1 -> {
-                        Toast.makeText(context, "Google Login Click", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            },
-            onSignUpClick = {  },
-            modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize(align = Alignment.BottomCenter)
-        )
-
-
-    }
-}
-
-@Composable
-fun AlternativeLoginOptions(
-    onIconClick:(index:Int) -> Unit,
-    onSignUpClick:() -> Unit,
-    modifier: Modifier = Modifier
-){
-    val iconList = listOf(
-        R.drawable.facebook_icon,
-        R.drawable.google_icon
-    )
-    Column (
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Text(text = "Or Sign in With")
-        Row (
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            iconList.forEachIndexed { index, iconResId ->
-                Icon(
-                    painter = painterResource(iconResId),
-                    contentDescription = "Alternative login",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clickable {
-                            onIconClick(index)
-                        }
-                        .clip(CircleShape)
-                )
-                Spacer(Modifier.width(defaultPadding))
-            }
-        }
         Spacer(Modifier.height(itemSpacing))
         Row (
             horizontalArrangement = Arrangement.Center,
@@ -184,10 +132,13 @@ fun AlternativeLoginOptions(
         ) {
             Text(text = "Don't have an Account?")
             Spacer(Modifier.height(itemSpacing))
-            TextButton(onClick = onSignUpClick) {
+            TextButton(onClick = { navController.navigate("register") } //Here navigate to registerScreen.kt
+            ) {
                 Text(text = "Sign Up")
             }
         }
+
+
     }
 }
 
@@ -195,6 +146,6 @@ fun AlternativeLoginOptions(
 @Composable
 fun PrevLoginScreen(){
     MobileApplicationAssignmentTheme {
-        LoginScreen()
+        LoginScreen(navController = rememberNavController())
     }
 }

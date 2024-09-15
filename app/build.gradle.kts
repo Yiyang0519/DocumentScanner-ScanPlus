@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.protolite.well.known.types)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.compose)
 
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)

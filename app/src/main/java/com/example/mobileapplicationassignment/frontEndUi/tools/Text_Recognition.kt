@@ -153,5 +153,5 @@ fun TextRecognition(){
 fun PrevTextRecognition (){
     MobileApplicationAssignmentTheme {
         TextRecognition()
-    }
+        }
 }

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -69,6 +70,11 @@ dependencies {
     implementation(libs.protolite.well.known.types)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.compose)
+
+    //Firebase
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.coilCompose)
 
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)

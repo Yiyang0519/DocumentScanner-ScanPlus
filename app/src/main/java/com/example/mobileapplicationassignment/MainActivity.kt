@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
@@ -30,11 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,11 +47,11 @@ import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.RegisterScreen
+import com.example.mobileapplicationassignment.frontEndUi.tools.TextRecognition
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
-
 
 data class BottomNavItem(
     val title: String,
@@ -79,6 +81,8 @@ class MainActivity : ComponentActivity() {
             val pdfCount by pdfViewModel.getPdfCount().collectAsState(initial = 0)
 
             MobileApplicationAssignmentTheme(pdfViewModel.isDarkMode, false) {
+                val navController = rememberNavController()
+
                 val items = listOf(
                     BottomNavItem(
                         title = "Scan",
@@ -123,6 +127,12 @@ class MainActivity : ComponentActivity() {
                                         selected = selectedItemIndex == index,
                                         onClick = {
                                             selectedItemIndex = index
+                                            when (index) {
+                                                0 -> navController.navigate("home")
+                                                1 -> navController.navigate("lists")
+                                                2 -> navController.navigate("tools")
+                                                3 -> navController.navigate("profile")
+                                            }
                                         },
                                         label = {
                                             Text(text = item.title)
@@ -156,17 +166,21 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    ) { paddingValues ->
-                        when (selectedItemIndex) {
-                            0 -> HomeScreen(pdfViewModel) // Scan screen
-                            1 -> PdfListsScreen(pdfViewModel) // Lists screen
-                            2 -> ToolsScreen() // Tools screen
-                            3 -> UserProfile() // Account screen
+                    ) { innerPadding ->
+                        NavHost(navController = navController, startDestination = "home") {
+                            composable("home") { HomeScreen(pdfViewModel) }
+                            composable("lists") { PdfListsScreen(pdfViewModel) }
+                            composable("tools") { ToolsScreen(navController) }
+                            composable("profile") { UserProfile() }
+                            composable("text_recognition") { TextRecognition() }
+                            composable("pdf_converter") { /* PDFConverter() */ }
+                            composable("image_file_import") { /* ImageFileImport() */ }
                         }
                     }
                 }
             }
         }
+
     }
 }
 

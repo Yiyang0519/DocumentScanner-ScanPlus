@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "13797752667",
+    "project_id": "scanplus-befd8",
+    "storage_bucket": "scanplus-befd8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13797752667:android:55c23c31c6896317fea47e",
+        "android_client_info": {
+          "package_name": "com.example.mobileapplicationassignment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIG84Vd9pn_sXJDldkHZkf3a3StA56GtM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

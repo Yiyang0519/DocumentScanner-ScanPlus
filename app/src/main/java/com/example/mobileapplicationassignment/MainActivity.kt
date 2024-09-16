@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -82,112 +83,19 @@ class MainActivity : ComponentActivity() {
             splashScreen.setKeepOnScreenCondition { pdfViewModel.isSplashScreen }
 
             val pdfCount by pdfViewModel.getPdfCount().collectAsState(initial = 0)
+            val authState by authViewModel.authState.observeAsState()
 
             MobileApplicationAssignmentTheme(pdfViewModel.isDarkMode, false) {
-                val navController = rememberNavController()
-                val authState by authViewModel.authState.observeAsState()
-
                 Surface (
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ){
                     when(authState){
                         is AuthState.Loading -> {
-                            Text(text = "Loading ...")
+                            LoadingScreen1()
                         }
                         is AuthState.Authenticated -> {
-                            val navController = rememberNavController()
-
-                            val items = listOf(
-                                BottomNavItem(
-                                    title = "Scan",
-                                    selectedIcon = Icons.Filled.Home,
-                                    unselectedIcon = Icons.Outlined.Home,
-                                    hasNews = false,
-                                ),
-                                BottomNavItem(
-                                    title = "Lists",
-                                    selectedIcon = Icons.AutoMirrored.Filled.List,
-                                    unselectedIcon = Icons.AutoMirrored.Outlined.List,
-                                    hasNews = false,
-                                    badgeCount = pdfCount
-                                ),
-                                BottomNavItem(
-                                    title = "Tools",
-                                    selectedIcon = Icons.Filled.Build,
-                                    unselectedIcon = Icons.Outlined.Build,
-                                    hasNews = false,
-                                ),
-                                BottomNavItem(
-                                    title = "Account",
-                                    selectedIcon = Icons.Filled.Person,
-                                    unselectedIcon = Icons.Outlined.Person,
-                                    hasNews = false,
-                                )
-                            )
-
-                            var selectedItemIndex by rememberSaveable {
-                                mutableIntStateOf(0)
-                            }
-
-                            Scaffold(
-                                bottomBar = {
-                                    NavigationBar {
-                                        items.forEachIndexed { index, item ->
-                                            NavigationBarItem(
-                                                selected = selectedItemIndex == index,
-                                                onClick = {
-                                                    selectedItemIndex = index
-                                                    when (index) {
-                                                        0 -> navController.navigate("home")
-                                                        1 -> navController.navigate("lists")
-                                                        2 -> navController.navigate("tools")
-                                                        3 -> navController.navigate("profile")
-                                                    }
-                                                },
-                                                label = {
-                                                    Text(text = item.title)
-                                                },
-                                                icon = {
-                                                    BadgedBox(
-                                                        badge = {
-                                                            if (item.badgeCount != null) {
-                                                                Badge {
-                                                                    Text(text = item.badgeCount.toString())
-                                                                }
-                                                            } else if (item.hasNews) {
-                                                                Badge()
-                                                            }
-                                                        }
-                                                    ) {
-                                                        Icon(
-                                                            imageVector = if (index == selectedItemIndex) {
-                                                                item.selectedIcon
-                                                            } else item.unselectedIcon,
-                                                            contentDescription = item.title
-                                                        )
-                                                    }
-                                                },
-                                                colors = NavigationBarItemDefaults.colors(
-                                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                                    indicatorColor = MaterialTheme.colorScheme.primary
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
-                            ) {
-                                NavHost(navController = navController, startDestination = "register") {
-                                    composable("home") { HomeScreen(pdfViewModel) }
-                                    composable("lists") { PdfListsScreen(pdfViewModel) }
-                                    composable("tools") { ToolsScreen(navController) }
-                                    composable("profile") { UserProfile() }
-                                    composable("text_recognition") { TextRecognition() }
-                                    composable("pdf_converter") { /* PDFConverter() */ }
-                                    composable("image_file_import") { /* ImageFileImport() */ }
-                                }
-                            }
+                            AuthenticatedScreen(pdfCount = pdfCount)
                         }
                         is AuthState.Unauthenticated, is AuthState.Error -> {
                             InitialNavigation(authViewModel = authViewModel)
@@ -198,6 +106,113 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun LoadingScreen1(){
+    Text(text = "Loading ...")
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun AuthenticatedScreen(pdfCount:Int){
+    val navController = rememberNavController()
+    val items = listOf(
+        BottomNavItem(
+            title = "Scan",
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home,
+            hasNews = false,
+        ),
+        BottomNavItem(
+            title = "Lists",
+            selectedIcon = Icons.AutoMirrored.Filled.List,
+            unselectedIcon = Icons.AutoMirrored.Outlined.List,
+            hasNews = false,
+            badgeCount = pdfCount
+        ),
+        BottomNavItem(
+            title = "Tools",
+            selectedIcon = Icons.Filled.Build,
+            unselectedIcon = Icons.Outlined.Build,
+            hasNews = false,
+        ),
+        BottomNavItem(
+            title = "Account",
+            selectedIcon = Icons.Filled.Person,
+            unselectedIcon = Icons.Outlined.Person,
+            hasNews = false,
+        )
+    )
+
+    var selectedItemIndex by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        selected = selectedItemIndex == index,
+                        onClick = {
+                            selectedItemIndex = index
+                            when (index) {
+                                0 -> navController.navigate("home")
+                                1 -> navController.navigate("lists")
+                                2 -> navController.navigate("tools")
+                                3 -> navController.navigate("profile")
+                            }
+                        },
+                        label = {
+                            Text(text = item.title)
+                        },
+                        icon = {
+                            BadgedBox(
+                                badge = {
+                                    if (item.badgeCount != null) {
+                                        Badge {
+                                            Text(text = item.badgeCount.toString())
+                                        }
+                                    } else if (item.hasNews) {
+                                        Badge()
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = if (index == selectedItemIndex) {
+                                        item.selectedIcon
+                                    } else item.unselectedIcon,
+                                    contentDescription = item.title
+                                )
+                            }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                            indicatorColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+            }
+        }
+    ) {
+        NavHost(navController = navController, startDestination = "home") {
+            composable("home") {
+                val pdfViewModel: PdfViewModel = viewModel()
+                HomeScreen(pdfViewModel)
+            }
+            composable("lists") {
+                val pdfViewModel: PdfViewModel = viewModel()
+                PdfListsScreen(pdfViewModel)
+            }
+            composable("tools") { ToolsScreen(navController) }
+            composable("profile") { UserProfile() }
+            composable("text_recognition") { TextRecognition() }
+            composable("pdf_converter") { /* PDFConverter() */ }
+            composable("image_file_import") { /* ImageFileImport() */ }
         }
     }
 }

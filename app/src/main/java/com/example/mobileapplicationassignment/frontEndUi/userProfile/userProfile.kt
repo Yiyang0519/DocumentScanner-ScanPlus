@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,16 +45,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.storage.FirebaseStorage
 
 val defaultPadding = 20.dp
 
@@ -325,7 +318,33 @@ fun CreateImageProfile(
 }
 
 @Composable
-fun CreateProfileInfo(){
+fun CreateProfileInfo() {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    // State to hold the username and email
+    var username by remember { mutableStateOf("Loading...") }
+    var email by remember { mutableStateOf("Loading...") }
+
+    // Use LaunchedEffect to fetch data from Firebase
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance("https://scanplus-befd8-default-rtdb.asia-southeast1.firebasedatabase.app").reference.child("user").child(userId)
+            database.get().addOnSuccessListener { snapshot ->
+                username = snapshot.child("username").getValue(String::class.java) ?: "Unknown User"
+                email = snapshot.child("email").getValue(String::class.java) ?: "Unknown Email"
+            }.addOnFailureListener { exception ->
+                // Handle error
+                Log.e("Firebase", "Error fetching data", exception)
+            }
+        }
+    }
+
+    // Now update the UI using the state variables
+    UpdateProfileInfo(username, email)
+}
+@Composable
+fun UpdateProfileInfo(username:String, email:String){
+
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -334,19 +353,13 @@ fun CreateProfileInfo(){
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         ProfileText(
-            text = "Andrew Yeo"
+            text = username
         )
 
         ProfileText(
-            text = "junken03@gmail.com"
-        )
-
-        ProfileText(
-            text = "@andrewyeoooo",
-            fontSize = 15.sp,
-            color = Color.DarkGray
-        )
-    }
+            text = email
+            )
+        }
 }
 
 @Composable

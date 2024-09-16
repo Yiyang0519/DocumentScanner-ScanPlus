@@ -45,9 +45,7 @@ import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
 import com.example.mobileapplicationassignment.frontEndUi.components.loginTxtField
-import com.example.mobileapplicationassignment.frontEndUi.userProfile.DataUserProfile
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
-import com.google.firebase.database.FirebaseDatabase
 
 val defaultPadding = 16.dp
 val itemSpacing = 8.dp

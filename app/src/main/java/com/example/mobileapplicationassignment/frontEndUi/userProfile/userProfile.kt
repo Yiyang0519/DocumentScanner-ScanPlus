@@ -60,19 +60,6 @@ import com.google.firebase.storage.FirebaseStorage
 
 val defaultPadding = 20.dp
 
-data class DataUserProfile(
-    val name: String = "",
-    val email: String = "",
-    val userId: String = "",
-    val profileImgUrl: String = ""
-)
-
-data class CategoryItem(
-    val title:String,
-    val iconResId: Int,
-    val description: String
-)
-
 @Composable
 fun UserProfile(authViewModel: AuthViewModel) {
     Surface(
@@ -125,11 +112,6 @@ fun UserProfile(authViewModel: AuthViewModel) {
 
 @Composable
 fun ProfileCategory(authViewModel: AuthViewModel){
-    val categories = listOf(
-        CategoryItem("Edit Profile", R.drawable.edit_profile, stringResource(id =R.string.EditProfile)),
-        CategoryItem("Settings", R.drawable.settings, stringResource(id = R.string.Settings)),
-        CategoryItem("FAQs", R.drawable.faq, stringResource(id = R.string.FAQs)),
-    )
     Box (
         modifier = Modifier
             .fillMaxHeight()
@@ -147,60 +129,138 @@ fun ProfileCategory(authViewModel: AuthViewModel){
                 color = Color.LightGray
             )
         ){
-            AllCategories(categories, authViewModel)
+            AllCategories(authViewModel)
         }
     }
 }
 
 @Composable
-fun AllCategories(categories: List<CategoryItem>, authViewModel: AuthViewModel) {
+fun AllCategories(authViewModel: AuthViewModel) {
     Column {
-        LazyColumn(
-            modifier = Modifier.weight(1f)
+        //Edit Profile
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            items(categories) { category ->
+            Button(
+                onClick = {  },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(6.dp)
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(5.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    Button(
-                        onClick = {  },
+                    Image(
+                        painter = painterResource(id = R.drawable.edit_profile),
+                        contentDescription = "Edit Profile",
+                        modifier = Modifier.size(50.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background),
+                            .weight(1f)
+                            .align(alignment = Alignment.CenterVertically)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Image(
-                                painter = painterResource(id = category.iconResId),
-                                contentDescription = category.title,
-                                modifier = Modifier.size(50.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .align(alignment = Alignment.CenterVertically)
-                            ) {
-                                Text(text = category.title, fontWeight = FontWeight.Bold)
-                                Text(text = category.description)
-                            }
-                        }
+                        Text(text = "Edit Profile", fontWeight = FontWeight.Bold)
+                        Text(text = stringResource(id = R.string.EditProfile))
                     }
                 }
             }
         }
 
+        //Settings
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {  },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.settings),
+                        contentDescription = "Settings",
+                        modifier = Modifier.size(50.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(alignment = Alignment.CenterVertically)
+                    ) {
+                        Text(text = "Settings", fontWeight = FontWeight.Bold)
+                        Text(text = stringResource(id = R.string.Settings))
+                    }
+                }
+            }
+        }
+
+        //FAQs
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {  },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.faq),
+                        contentDescription = "FAQs",
+                        modifier = Modifier.size(50.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(alignment = Alignment.CenterVertically)
+                    ) {
+                        Text(text = "FAQs", fontWeight = FontWeight.Bold)
+                        Text(text = stringResource(id = R.string.FAQs))
+                    }
+                }
+            }
+        }
+
+        //Logout
         Row(
             modifier = Modifier
                 .fillMaxWidth()

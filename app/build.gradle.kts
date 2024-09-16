@@ -75,6 +75,8 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.coilCompose)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.runtime.livedata)
 
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)

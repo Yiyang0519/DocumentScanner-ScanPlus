@@ -20,7 +20,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,22 +40,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.mobileapplicationassignment.AuthState
+import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
 import com.example.mobileapplicationassignment.frontEndUi.components.loginTxtField
+import com.example.mobileapplicationassignment.frontEndUi.userProfile.DataUserProfile
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
+import com.google.firebase.database.FirebaseDatabase
 
 val defaultPadding = 16.dp
 val itemSpacing = 8.dp
 
+data class User(
+    val username: String = "",
+    val email: String = ""
+)
+
 @Composable
-fun RegisterScreen(navController: NavController){
+fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel){
 
-    val (firstName,onFirstNameChange) = rememberSaveable {
-        mutableStateOf("")
-    }
 
-    val (lastName,onLastNameChange) = rememberSaveable {
+    val (userName,onUserNameChange) = rememberSaveable {
         mutableStateOf("")
     }
 
@@ -77,9 +85,19 @@ fun RegisterScreen(navController: NavController){
         mutableStateOf(false)
     }
 
-    val isFieldsNotEmpty = firstName.isNotEmpty() && lastName.isNotEmpty() && email.isNotEmpty() && pass1.isNotEmpty() && pass2.isNotEmpty() && agree
+    val isFieldsNotEmpty = userName.isNotEmpty() && email.isNotEmpty() && pass1.isNotEmpty() && pass2.isNotEmpty() && agree
 
     val context = LocalContext.current
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect (authState.value){
+        when(authState.value){
+            is AuthState.Authenticated -> navController.navigate("home")
+            is AuthState.Error -> Toast.makeText(context,(authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            else -> Unit
+        }
+    }
 
     Column (
         modifier = Modifier
@@ -101,19 +119,14 @@ fun RegisterScreen(navController: NavController){
                 .padding(vertical = defaultPadding)
                 .align(alignment = Alignment.Start)
         )
-        loginTxtField(
-            value = firstName,
-            onValueChange = onFirstNameChange,
-            labelText = "First Name",
-            modifier = Modifier.fillMaxWidth()
-        )
 
         Spacer(Modifier.height(itemSpacing))
         loginTxtField(
-            value = lastName,
-            onValueChange = onLastNameChange,
-            labelText = "Last Name",
-            modifier = Modifier.fillMaxWidth()
+            value = userName,
+            onValueChange = onUserNameChange,
+            labelText = "User Name",
+            modifier = Modifier.fillMaxWidth(),
+            keyboardType = KeyboardType.Text
         )
 
         Spacer(Modifier.height(itemSpacing))
@@ -189,11 +202,18 @@ fun RegisterScreen(navController: NavController){
         }
 
         Spacer(Modifier.height(defaultPadding + 8.dp))
-        
+
         Button(onClick = {
-            isPasswordSame = pass1 != pass2
+            isPasswordSame = pass1 == pass2
             if(isPasswordSame){
-                //signUp method clicked write here
+                authViewModel.signup(email, pass1, {userId ->
+                    val user = User(username = userName, email = email)
+                    FirebaseDatabase.getInstance().getReference("User").child(userId).setValue(user)
+                }, { error ->
+                    println("Sign Up Error: $error")
+                })
+            }else{
+                Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
             }
         },
             modifier = Modifier.fillMaxWidth(),
@@ -219,7 +239,7 @@ fun RegisterScreen(navController: NavController){
                 if(it.tag == signInText){
                     //Here navigate back to loginScreen.kt
                     navController.popBackStack()
-                   Toast.makeText(context, "Sign In clicked", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Sign In clicked", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -238,8 +258,6 @@ fun RegisterScreen(navController: NavController){
 @Composable
 fun PrevRegisterScreen(){
     MobileApplicationAssignmentTheme {
-        RegisterScreen(navController = rememberNavController())
-    }
+        RegisterScreen(navController = rememberNavController(), authViewModel = AuthViewModel())
+        }
 }
-
-

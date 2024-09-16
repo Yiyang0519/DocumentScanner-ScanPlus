@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
@@ -30,13 +29,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,6 +51,7 @@ import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
+import com.google.firebase.FirebaseApp
 
 data class BottomNavItem(
     val title: String,
@@ -70,10 +70,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val authViewModel by viewModels<AuthViewModel>()
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             splashScreen.setKeepOnScreenCondition { pdfViewModel.isSplashScreen }
@@ -82,119 +85,130 @@ class MainActivity : ComponentActivity() {
 
             MobileApplicationAssignmentTheme(pdfViewModel.isDarkMode, false) {
                 val navController = rememberNavController()
+                val authState by authViewModel.authState.observeAsState()
 
-                val items = listOf(
-                    BottomNavItem(
-                        title = "Scan",
-                        selectedIcon = Icons.Filled.Home,
-                        unselectedIcon = Icons.Outlined.Home,
-                        hasNews = false,
-                    ),
-                    BottomNavItem(
-                        title = "Lists",
-                        selectedIcon = Icons.AutoMirrored.Filled.List,
-                        unselectedIcon = Icons.AutoMirrored.Outlined.List,
-                        hasNews = false,
-                        badgeCount = pdfCount
-                    ),
-                    BottomNavItem(
-                        title = "Tools",
-                        selectedIcon = Icons.Filled.Build,
-                        unselectedIcon = Icons.Outlined.Build,
-                        hasNews = false,
-                    ),
-                    BottomNavItem(
-                        title = "Account",
-                        selectedIcon = Icons.Filled.Person,
-                        unselectedIcon = Icons.Outlined.Person,
-                        hasNews = false,
-                    )
-                )
-
-                var selectedItemIndex by rememberSaveable {
-                    mutableIntStateOf(0)
-                }
-
-                Surface(
+                Surface (
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ) {
-                    Scaffold(
-                        bottomBar = {
-                            NavigationBar {
-                                items.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = selectedItemIndex == index,
-                                        onClick = {
-                                            selectedItemIndex = index
-                                            when (index) {
-                                                0 -> navController.navigate("home")
-                                                1 -> navController.navigate("lists")
-                                                2 -> navController.navigate("tools")
-                                                3 -> navController.navigate("profile")
-                                            }
-                                        },
-                                        label = {
-                                            Text(text = item.title)
-                                        },
-                                        icon = {
-                                            BadgedBox(
-                                                badge = {
-                                                    if (item.badgeCount != null) {
-                                                        Badge {
-                                                            Text(text = item.badgeCount.toString())
-                                                        }
-                                                    } else if (item.hasNews) {
-                                                        Badge()
+                ){
+                    when(authState){
+                        is AuthState.Loading -> {
+                            Text(text = "Loading ...")
+                        }
+                        is AuthState.Authenticated -> {
+                            val navController = rememberNavController()
+
+                            val items = listOf(
+                                BottomNavItem(
+                                    title = "Scan",
+                                    selectedIcon = Icons.Filled.Home,
+                                    unselectedIcon = Icons.Outlined.Home,
+                                    hasNews = false,
+                                ),
+                                BottomNavItem(
+                                    title = "Lists",
+                                    selectedIcon = Icons.AutoMirrored.Filled.List,
+                                    unselectedIcon = Icons.AutoMirrored.Outlined.List,
+                                    hasNews = false,
+                                    badgeCount = pdfCount
+                                ),
+                                BottomNavItem(
+                                    title = "Tools",
+                                    selectedIcon = Icons.Filled.Build,
+                                    unselectedIcon = Icons.Outlined.Build,
+                                    hasNews = false,
+                                ),
+                                BottomNavItem(
+                                    title = "Account",
+                                    selectedIcon = Icons.Filled.Person,
+                                    unselectedIcon = Icons.Outlined.Person,
+                                    hasNews = false,
+                                )
+                            )
+
+                            var selectedItemIndex by rememberSaveable {
+                                mutableIntStateOf(0)
+                            }
+
+                            Scaffold(
+                                bottomBar = {
+                                    NavigationBar {
+                                        items.forEachIndexed { index, item ->
+                                            NavigationBarItem(
+                                                selected = selectedItemIndex == index,
+                                                onClick = {
+                                                    selectedItemIndex = index
+                                                    when (index) {
+                                                        0 -> navController.navigate("home")
+                                                        1 -> navController.navigate("lists")
+                                                        2 -> navController.navigate("tools")
+                                                        3 -> navController.navigate("profile")
                                                     }
-                                                }
-                                            ) {
-                                                Icon(
-                                                    imageVector = if (index == selectedItemIndex) {
-                                                        item.selectedIcon
-                                                    } else item.unselectedIcon,
-                                                    contentDescription = item.title
+                                                },
+                                                label = {
+                                                    Text(text = item.title)
+                                                },
+                                                icon = {
+                                                    BadgedBox(
+                                                        badge = {
+                                                            if (item.badgeCount != null) {
+                                                                Badge {
+                                                                    Text(text = item.badgeCount.toString())
+                                                                }
+                                                            } else if (item.hasNews) {
+                                                                Badge()
+                                                            }
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = if (index == selectedItemIndex) {
+                                                                item.selectedIcon
+                                                            } else item.unselectedIcon,
+                                                            contentDescription = item.title
+                                                        )
+                                                    }
+                                                },
+                                                colors = NavigationBarItemDefaults.colors(
+                                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                                    indicatorColor = MaterialTheme.colorScheme.primary
                                                 )
-                                            }
-                                        },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                            indicatorColor = MaterialTheme.colorScheme.primary
-                                        )
-                                    )
+                                            )
+                                        }
+                                    }
+                                }
+                            ) {
+                                NavHost(navController = navController, startDestination = "register") {
+                                    composable("home") { HomeScreen(pdfViewModel) }
+                                    composable("lists") { PdfListsScreen(pdfViewModel) }
+                                    composable("tools") { ToolsScreen(navController) }
+                                    composable("profile") { UserProfile() }
+                                    composable("text_recognition") { TextRecognition() }
+                                    composable("pdf_converter") { /* PDFConverter() */ }
+                                    composable("image_file_import") { /* ImageFileImport() */ }
                                 }
                             }
                         }
-                    ) { innerPadding ->
-                        NavHost(navController = navController, startDestination = "home") {
-                            composable("home") { HomeScreen(pdfViewModel) }
-                            composable("lists") { PdfListsScreen(pdfViewModel) }
-                            composable("tools") { ToolsScreen(navController) }
-                            composable("profile") { UserProfile() }
-                            composable("text_recognition") { TextRecognition() }
-                            composable("pdf_converter") { /* PDFConverter() */ }
-                            composable("image_file_import") { /* ImageFileImport() */ }
+                        is AuthState.Unauthenticated, is AuthState.Error -> {
+                            InitialNavigation(authViewModel = authViewModel)
+                        }
+                        else -> {
+                            Text(text = "Unknown State")
                         }
                     }
                 }
             }
         }
-
     }
 }
 
 @Composable
-fun InitialNavigation() {
+fun InitialNavigation(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "login") {
-        composable("login") { LoginScreen(navController = navController) }
-        composable("register") { RegisterScreen(navController = navController) }
-        composable("privacy") { PrivacyScreen(navController = navController) }
-        composable("policy") { PolicyScreen(navController = navController) }
+        composable("login") { LoginScreen(navController, authViewModel) }
+        composable("register") { RegisterScreen(navController, authViewModel) }
+        composable("privacy") { PrivacyScreen(navController) }
+        composable("policy") { PolicyScreen(navController)}
     }
 }
-
-
-
-

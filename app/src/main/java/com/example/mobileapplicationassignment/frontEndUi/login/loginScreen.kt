@@ -23,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -36,6 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.mobileapplicationassignment.AuthState
+import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
 import com.example.mobileapplicationassignment.frontEndUi.components.loginTxtField
@@ -46,8 +50,8 @@ val defaultPadding = 16.dp
 val itemSpacing = 8.dp
 
 @Composable
-fun LoginScreen(navController: NavController){
-    val (username,setUserName) = rememberSaveable {
+fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
+    val (email,setEmail) = rememberSaveable {
         mutableStateOf("")
     }
 
@@ -59,9 +63,19 @@ fun LoginScreen(navController: NavController){
         mutableStateOf(false)
     }
 
-    val isFieldsNotEmpty = username.isNotEmpty() && password.isNotEmpty()
+    val isFieldsNotEmpty = email.isNotEmpty() && password.isNotEmpty()
 
     val context = LocalContext.current
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect (authState.value){
+        when(authState.value){
+            is AuthState.Authenticated -> navController.navigate("home")
+            is AuthState.Error -> Toast.makeText(context,(authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            else -> Unit
+        }
+    }
 
     Column (
         modifier = Modifier
@@ -76,9 +90,9 @@ fun LoginScreen(navController: NavController){
                 .align(alignment = Alignment.Start)
         )
         loginTxtField(
-            value = username,
-            onValueChange = setUserName,
-            labelText = "Username",
+            value = email,
+            onValueChange = setEmail,
+            labelText = "Email",
             leadingIcon = Icons.Default.Person,
             modifier = Modifier.fillMaxWidth()
         )
@@ -116,9 +130,9 @@ fun LoginScreen(navController: NavController){
         }
 
         Spacer(Modifier.height(itemSpacing))
-        
+
         Button(
-            onClick = {  },
+            onClick = { authViewModel.login(email,password) },
             modifier = Modifier.fillMaxWidth(),
             enabled = isFieldsNotEmpty
         ) {
@@ -146,6 +160,6 @@ fun LoginScreen(navController: NavController){
 @Composable
 fun PrevLoginScreen(){
     MobileApplicationAssignmentTheme {
-        LoginScreen(navController = rememberNavController())
-    }
+        LoginScreen(navController = rememberNavController(), authViewModel = AuthViewModel())
+        }
 }

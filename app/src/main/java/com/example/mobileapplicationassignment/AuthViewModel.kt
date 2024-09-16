@@ -42,7 +42,9 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun signup(email:String, pass1:String, onSuccess: (String) -> Unit, onError: (String)-> Unit){
+
+    //signup(email:String, pass1:String, onSuccess: (String) -> Unit, onError: (String)-> Unit)
+    fun signup(email:String, pass1:String){
         if(email.isEmpty() || pass1.isEmpty()){
             _authState.value = AuthState.Error("Email or password is empty!")
             return
@@ -51,19 +53,26 @@ class AuthViewModel : ViewModel() {
             auth.createUserWithEmailAndPassword(email,pass1)
                 .addOnCompleteListener{task ->
                     if(task.isSuccessful){
-                        val userId = task.result?.user?.uid
-                        if(userId != null){
-                            _authState.value = AuthState.Authenticated
-                            onSuccess(userId)
-                        }else{
-                            _authState.value = AuthState.Error("Failed to get user ID!")
-                            onError("Failed to get user ID!")
-                        }
-
+                        _authState.value = AuthState.Authenticated
                     }else{
                         _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
                     }
                 }
+                //.addOnCompleteListener{task ->
+                //    if(task.isSuccessful){
+                //        val userId = task.result?.user?.uid
+                //        if(userId != null){
+                //            _authState.value = AuthState.Authenticated
+                //            onSuccess(userId)
+                //        }else{
+                //            _authState.value = AuthState.Error("Failed to get user ID!")
+                //            onError("Failed to get user ID!")
+                //        }
+
+                //    }else{
+                //        _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
+                //    }
+                //}
         }
     }
 

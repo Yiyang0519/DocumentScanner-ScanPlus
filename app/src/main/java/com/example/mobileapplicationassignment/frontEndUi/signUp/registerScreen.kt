@@ -206,12 +206,13 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel){
         Button(onClick = {
             isPasswordSame = pass1 == pass2
             if(isPasswordSame){
-                authViewModel.signup(email, pass1, {userId ->
-                    val user = User(username = userName, email = email)
-                    FirebaseDatabase.getInstance().getReference("User").child(userId).setValue(user)
-                }, { error ->
-                    println("Sign Up Error: $error")
-                })
+                authViewModel.signup(email,pass1)
+                //authViewModel.signup(email, pass1, {userId ->
+                //    val user = User(username = userName, email = email)
+                //    FirebaseDatabase.getInstance().getReference("User").child(userId).setValue(user)
+                //}, { error ->
+                //    println("Sign Up Error: $error")
+                //})
             }else{
                 Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
             }

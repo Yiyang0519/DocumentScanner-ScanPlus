@@ -1,11 +1,13 @@
 package com.example.mobileapplicationassignment
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -47,6 +49,7 @@ import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.RegisterScreen
+import com.example.mobileapplicationassignment.frontEndUi.tools.PdfConverter
 import com.example.mobileapplicationassignment.frontEndUi.tools.TextRecognition
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
 import com.example.mobileapplicationassignment.frontEndUi.userProfile.UserProfile
@@ -121,6 +124,7 @@ fun LoadingScreen1(){
     Text(text = "Loading ...")
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AuthenticatedScreen(
@@ -220,7 +224,7 @@ fun AuthenticatedScreen(
             composable("tools") { ToolsScreen(navController) }
             composable("profile") { UserProfile(authViewModel) }
             composable("text_recognition") { TextRecognition(navController) }
-            composable("pdf_converter") { /* PDFConverter() */ }
+            composable("pdf_converter") { PdfConverter(navController) }
             composable("image_file_import") { /* ImageFileImport() */ }
             }
         }

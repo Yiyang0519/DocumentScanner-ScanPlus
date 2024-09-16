@@ -50,6 +50,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.common.ErrorScreen
 import com.example.mobileapplicationassignment.frontEndUi.common.LoadingScreen
@@ -72,7 +74,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun PdfListsScreen(pdfViewModel: PdfViewModel) {
+fun PdfListsScreen(pdfViewModel: PdfViewModel, navController: NavController, authViewModel: AuthViewModel) {
     LoadingScreen(pdfViewModel = pdfViewModel)
     RenameDeleteDialog(pdfViewModel = pdfViewModel)
 

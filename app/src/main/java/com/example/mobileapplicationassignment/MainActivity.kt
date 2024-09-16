@@ -62,6 +62,7 @@ data class BottomNavItem(
     val badgeCount: Int? = null
 )
 
+
 class MainActivity : ComponentActivity() {
     private val pdfViewModel by viewModels<PdfViewModel> {
         viewModelFactory {
@@ -70,6 +71,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     private val authViewModel by viewModels<AuthViewModel>()
 
@@ -86,19 +88,23 @@ class MainActivity : ComponentActivity() {
             val authState by authViewModel.authState.observeAsState()
 
             MobileApplicationAssignmentTheme(pdfViewModel.isDarkMode, false) {
-                Surface (
+                Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ){
-                    when(authState){
+                ) {
+                    when (authState) {
                         is AuthState.Loading -> {
                             LoadingScreen1()
                         }
                         is AuthState.Authenticated -> {
-                            AuthenticatedScreen(pdfCount = pdfCount)
+                            AuthenticatedScreen(
+                                pdfCount = pdfCount,
+                                authViewModel = authViewModel,
+                                pdfViewModel = pdfViewModel // Pass pdfViewModel here
+                            )
                         }
                         is AuthState.Unauthenticated, is AuthState.Error -> {
-                            InitialNavigation(authViewModel = authViewModel)
+                            InitialNavigation(pdfCount = pdfCount, authViewModel)
                         }
                         else -> {
                             Text(text = "Unknown State")
@@ -117,7 +123,11 @@ fun LoadingScreen1(){
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AuthenticatedScreen(pdfCount:Int){
+fun AuthenticatedScreen(
+    pdfCount: Int,
+    authViewModel: AuthViewModel,
+    pdfViewModel: PdfViewModel // Add this parameter
+) {
     val navController = rememberNavController()
     val items = listOf(
         BottomNavItem(
@@ -201,24 +211,22 @@ fun AuthenticatedScreen(pdfCount:Int){
     ) {
         NavHost(navController = navController, startDestination = "home") {
             composable("home") {
-                val pdfViewModel: PdfViewModel = viewModel()
-                HomeScreen(pdfViewModel)
+                HomeScreen(pdfViewModel, navController, authViewModel) // Pass pdfViewModel here
             }
             composable("lists") {
-                val pdfViewModel: PdfViewModel = viewModel()
-                PdfListsScreen(pdfViewModel)
+                PdfListsScreen(pdfViewModel, navController, authViewModel) // Pass pdfViewModel here
             }
             composable("tools") { ToolsScreen(navController) }
-            composable("profile") { UserProfile() }
+            composable("profile") { UserProfile(authViewModel) }
             composable("text_recognition") { TextRecognition() }
             composable("pdf_converter") { /* PDFConverter() */ }
             composable("image_file_import") { /* ImageFileImport() */ }
+            }
         }
-    }
 }
 
 @Composable
-fun InitialNavigation(authViewModel: AuthViewModel) {
+fun InitialNavigation(pdfCount:Int, authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController, authViewModel) }

@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,6 +57,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.mobileapplicationassignment.AuthState
+import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.common.ErrorScreen
 import com.example.mobileapplicationassignment.frontEndUi.common.LoadingScreen
@@ -78,7 +82,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(pdfViewModel: PdfViewModel) {
+fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authViewModel: AuthViewModel) {
     LoadingScreen(pdfViewModel = pdfViewModel)
     RenameDeleteDialog(pdfViewModel = pdfViewModel)
 
@@ -89,6 +93,15 @@ fun HomeScreen(pdfViewModel: PdfViewModel) {
     val message = pdfViewModel.message
 
     var searchQuery by remember { mutableStateOf("") }
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect (authState.value){
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("login")
+            else -> Unit
+        }
+    }
 
     LaunchedEffect(Unit) {
         message.collect {

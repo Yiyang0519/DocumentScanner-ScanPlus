@@ -46,6 +46,7 @@ import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
 import com.example.mobileapplicationassignment.frontEndUi.components.loginTxtField
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
+import com.google.firebase.database.FirebaseDatabase
 
 val defaultPadding = 16.dp
 val itemSpacing = 8.dp
@@ -204,13 +205,20 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel){
         Button(onClick = {
             isPasswordSame = pass1 == pass2
             if(isPasswordSame){
-                authViewModel.signup(email,pass1)
-                /*authViewModel.signup(email, pass1, {userId ->
+                /*authViewModel.signup(email,pass1)*/
+                authViewModel.signup(email, pass1, {userId ->
                     val user = User(username = userName, email = email)
-                    FirebaseDatabase.getInstance().getReference("user").child(userId).setValue(user)
+                    FirebaseDatabase.getInstance("https://scanplus-befd8-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("user").child(userId).setValue(user)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                println("User data successfully written to the realtime database.")
+                            } else {
+                                println("Error writing user data: ${task.exception?.message}")
+                            }
+                        }
                 }, { error ->
                     println("Sign Up Error: $error")
-                })*/
+                })
             }else{
                 Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
             }

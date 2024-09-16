@@ -44,7 +44,7 @@ class AuthViewModel : ViewModel() {
 
 
     //signup(email:String, pass1:String, onSuccess: (String) -> Unit, onError: (String)-> Unit)
-    fun signup(email:String, pass1:String){
+    fun signup(email:String, pass1:String, onSuccess: (String) -> Unit, onError: (String)-> Unit){
         if(email.isEmpty() || pass1.isEmpty()){
             _authState.value = AuthState.Error("Email or password is empty!")
             return
@@ -54,25 +54,27 @@ class AuthViewModel : ViewModel() {
                 .addOnCompleteListener{task ->
                     if(task.isSuccessful){
                         _authState.value = AuthState.Authenticated
+                        println("User data successfully written to the authentication database.")
+                    }else{
+                        _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
+                        println("Error writing user data: ${task.exception?.message}")
+                    }
+                }
+                .addOnCompleteListener{task ->
+                    if(task.isSuccessful){
+                        val userId = task.result?.user?.uid
+                        if(userId != null){
+                            _authState.value = AuthState.Authenticated
+                            onSuccess(userId)
+                        }else{
+                            _authState.value = AuthState.Error("Failed to get user ID!")
+                            onError("Failed to get user ID!")
+                        }
+
                     }else{
                         _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
                     }
                 }
-                //.addOnCompleteListener{task ->
-                //    if(task.isSuccessful){
-                //        val userId = task.result?.user?.uid
-                //        if(userId != null){
-                //            _authState.value = AuthState.Authenticated
-                //            onSuccess(userId)
-                //        }else{
-                //            _authState.value = AuthState.Error("Failed to get user ID!")
-                //            onError("Failed to get user ID!")
-                //        }
-
-                //    }else{
-                //        _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
-                //    }
-                //}
         }
     }
 

@@ -252,7 +252,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                     imageResId = R.drawable.scan_icon,
                     text = "Extract Text",
                     onClick = {
-                        // TODO: Add navigation to TextRecognition() screen here
+                        navController.navigate("text_recognition")
                     }
                 )
 
@@ -260,7 +260,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                     imageResId = R.drawable.pdf_converter,
                     text = "PDF Tools",
                     onClick = {
-                        // TODO: Add navigation to PDFTools() screen here
+                        navController.navigate("pdf_converter")
                     }
                 )
 
@@ -268,7 +268,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                     imageResId = R.drawable.photo,
                     text = "Import Images",
                     onClick = {
-                        // TODO: Add navigation to ImportImages() screen here
+                        navController.navigate("import_images")
                     }
                 )
 
@@ -276,10 +276,11 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                     imageResId = R.drawable.import_folder,
                     text = "Import Files",
                     onClick = {
-                        // TODO: Add navigation to ImportFiles() screen here
+                        navController.navigate("import_files")
                     }
                 )
             }
+
 
             // Recents Section
             Row(
@@ -399,7 +400,7 @@ fun FunctionButton(imageResId: Int, text: String, onClick: () -> Unit) {
             text = text,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp), // Space between button and text
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.background
         )
     }
 }

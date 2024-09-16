@@ -31,6 +31,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldDefaults.textFieldColors
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -74,7 +75,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun PdfListsScreen(pdfViewModel: PdfViewModel, navController: NavController, authViewModel: AuthViewModel) {
+fun PdfListsScreen(pdfViewModel: PdfViewModel) {
     LoadingScreen(pdfViewModel = pdfViewModel)
     RenameDeleteDialog(pdfViewModel = pdfViewModel)
 
@@ -161,22 +162,7 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel, navController: NavController, aut
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp) // Adjust fontSize as needed
                         )
                     }
-                },
-                actions = {
-                    Switch(
-                        checked = pdfViewModel.isDarkMode,
-                        onCheckedChange = { pdfViewModel.isDarkMode = it },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.background,
-                            uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.onBackground
-                        )
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+                }
             )
         },
         floatingActionButton = {
@@ -232,7 +218,7 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel, navController: NavController, aut
                         contentDescription = "Search Icon"
                     )
                 },
-                colors = TextFieldDefaults.textFieldColors(
+                colors = textFieldColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 shape = RoundedCornerShape(12.dp) // Rounded corners

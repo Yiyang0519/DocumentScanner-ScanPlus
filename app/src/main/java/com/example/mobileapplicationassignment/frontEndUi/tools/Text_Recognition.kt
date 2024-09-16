@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.mobileapplicationassignment.R
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 import com.google.mlkit.vision.common.InputImage
@@ -49,7 +52,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TextRecognition(){
+fun TextRecognition(navController: NavController) {
     val context = LocalContext.current
 
     val bitmapState: MutableState<Bitmap?> = remember {
@@ -66,7 +69,7 @@ fun TextRecognition(){
         uri?.let {
             val bitmap = if (Build.VERSION.SDK_INT < 28) {
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-            } else{
+            } else {
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
                 ImageDecoder.decodeBitmap(source)
             }
@@ -74,25 +77,52 @@ fun TextRecognition(){
         }
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Text Recognition", color = MaterialTheme.colorScheme.onPrimary)},
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Display the drawable as an image on the left side of the title
+                        Image(
+                            painter = painterResource(id = R.drawable.scan_icon),
+                            contentDescription = "Text Recognition",
+                            modifier = Modifier.size(40.dp) // Adjust the size as necessary
+                        )
+                        Text(
+                            text = "Text Recognition",
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                },
+                actions = {
+                    // Set the back button icon to white
+                    IconButton(onClick = { navController.navigate("tools") }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_arrow_back_24),
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary // Set the tint to white or any desired color
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             )
+
         }
-    ){ paddingValues ->
-        Column (
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
-        ){
-            if (bitmapState.value != null){
+        ) {
+            if (bitmapState.value != null) {
                 Image(
                     bitmap = bitmapState.value!!.asImageBitmap(),
                     contentDescription = null,
@@ -116,17 +146,17 @@ fun TextRecognition(){
                 ) {
                     Text(text = "Recognize Text")
                 }
-            }else{
-                Box (
+            } else {
+                Box(
                     modifier = Modifier
                         .size(250.dp)
                         .background(MaterialTheme.colorScheme.surface)
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
-                ){
-                    Column (
+                ) {
+                    Column(
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.insert_image),
                             contentDescription = null,
@@ -148,10 +178,3 @@ fun TextRecognition(){
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PrevTextRecognition (){
-    MobileApplicationAssignmentTheme {
-        TextRecognition()
-        }
-}

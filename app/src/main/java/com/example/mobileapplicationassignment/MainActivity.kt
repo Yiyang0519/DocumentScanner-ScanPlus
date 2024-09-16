@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         is AuthState.Unauthenticated, is AuthState.Error -> {
-                            InitialNavigation(pdfCount = pdfCount, authViewModel)
+                            InitialNavigation(authViewModel)
                         }
                         else -> {
                             Text(text = "Unknown State")
@@ -195,30 +195,31 @@ fun AuthenticatedScreen(
                                     imageVector = if (index == selectedItemIndex) {
                                         item.selectedIcon
                                     } else item.unselectedIcon,
-                                    contentDescription = item.title
+                                    contentDescription = item.title,
                                 )
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                            selectedIconColor = MaterialTheme.colorScheme.onBackground,
+                            unselectedIconColor = MaterialTheme.colorScheme.onBackground,
                             indicatorColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }
             }
         }
-    ) {
+    )
+    {
         NavHost(navController = navController, startDestination = "home") {
             composable("home") {
                 HomeScreen(pdfViewModel, navController, authViewModel) // Pass pdfViewModel here
             }
             composable("lists") {
-                PdfListsScreen(pdfViewModel, navController, authViewModel) // Pass pdfViewModel here
+                PdfListsScreen(pdfViewModel) // Pass pdfViewModel here
             }
             composable("tools") { ToolsScreen(navController) }
             composable("profile") { UserProfile(authViewModel) }
-            composable("text_recognition") { TextRecognition() }
+            composable("text_recognition") { TextRecognition(navController) }
             composable("pdf_converter") { /* PDFConverter() */ }
             composable("image_file_import") { /* ImageFileImport() */ }
             }
@@ -226,7 +227,7 @@ fun AuthenticatedScreen(
 }
 
 @Composable
-fun InitialNavigation(pdfCount:Int, authViewModel: AuthViewModel) {
+fun InitialNavigation(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController, authViewModel) }

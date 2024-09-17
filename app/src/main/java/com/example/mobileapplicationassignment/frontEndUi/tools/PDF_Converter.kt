@@ -106,7 +106,7 @@ fun PdfConverter(navController: NavController) {
                 },
                 actions = {
                     // Set the back button icon to white
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_arrow_back_24), // Replace with your drawable resource ID
                             contentDescription = "Back",

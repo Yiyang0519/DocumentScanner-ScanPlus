@@ -99,7 +99,7 @@ fun TextRecognition(navController: NavController) {
                 },
                 actions = {
                     // Set the back button icon to white
-                    IconButton(onClick = { navController.navigate("tools") }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                             contentDescription = "Back",

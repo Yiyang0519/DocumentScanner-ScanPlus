@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
@@ -28,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -51,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.mobileapplicationassignment.R
-import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 import java.io.IOException
 import java.io.OutputStream
 
@@ -109,7 +106,7 @@ fun PdfConverter(navController: NavController) {
                 },
                 actions = {
                     // Set the back button icon to white
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_arrow_back_24), // Replace with your drawable resource ID
                             contentDescription = "Back",
@@ -169,14 +166,14 @@ fun PdfConverter(navController: NavController) {
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         }) {
-                            Text(text = "Pick one photo", fontSize = 16.sp)
+                            Text(text = "Pick one photo", fontSize = 13.sp)
                         }
                         Button(onClick = {
                             multiplePhotoPickerLauncher.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         }) {
-                            Text(text = "Pick multiple photos", fontSize = 16.sp)
+                            Text(text = "Pick multiple photos", fontSize = 13.sp)
                         }
                     }
                 }

@@ -7,7 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -164,7 +162,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.app_name))
+                    Text(text = stringResource(id = R.string.welcome))
                 },
                 actions = {
                     Switch(
@@ -268,7 +266,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                     imageResId = R.drawable.photo,
                     text = "Import Images",
                     onClick = {
-                        navController.navigate("import_images")
+                        navController.navigate("image_file_import")
                     }
                 )
 
@@ -276,7 +274,7 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                     imageResId = R.drawable.import_folder,
                     text = "Import Files",
                     onClick = {
-                        navController.navigate("import_files")
+                        navController.navigate("image_file_import")
                     }
                 )
             }

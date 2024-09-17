@@ -111,7 +111,7 @@ class PdfViewModel(application: Application):ViewModel() {
                 loadingDialog = true
                 delay(2000)
                 pdfRepository.updatePdf(pdfEntity)
-                _message.send(Resource. Success("Deleted Pdf Successfully"))
+                _message.send(Resource. Success("Updated Pdf Successfully"))
             }catch (e: Exception) {
                 e.printStackTrace()
                 _message.send(Resource. Error(e.message?: "Something Went Wrong"))

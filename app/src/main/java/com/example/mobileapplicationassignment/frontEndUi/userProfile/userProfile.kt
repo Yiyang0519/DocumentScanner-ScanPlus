@@ -45,8 +45,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.mobileapplicationassignment.AuthViewModel
 import com.example.mobileapplicationassignment.R
+import com.example.mobileapplicationassignment.frontEndUi.settings.FAQScreen
+import com.example.mobileapplicationassignment.frontEndUi.settings.GeneralSettings
+import com.example.mobileapplicationassignment.frontEndUi.settings.UserSettings
 import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -55,241 +62,211 @@ val defaultPadding = 20.dp
 
 @Composable
 fun UserProfile(authViewModel: AuthViewModel) {
+    val navController = rememberNavController()
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+        NavHost(
+            navController = navController,
+            startDestination = "profile_screen"
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxSize()
-                    .height(defaultPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primary),
-
-                    ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Spacer(modifier = Modifier.height(defaultPadding))
-                        CreateImageProfile(
-                            painterResource(id = R.drawable.profile_pic),
-                            modifier = Modifier
-                        )
-                        HorizontalDivider()
-                        CreateProfileInfo()
-                    }
-                }
-                ProfileCategory(authViewModel)
+            composable("profile_screen") {
+                ProfileScreen(authViewModel, navController)
+            }
+            composable("edit_profile") {
+                //UserSettings(currentNickname = , currentEmail = )
+            }
+            composable("settings") {
+                GeneralSettings()
+            }
+            composable("faqs") {
+                FAQScreen(navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun ProfileCategory(authViewModel: AuthViewModel){
-    Box (
+fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController){
+    Card(
         modifier = Modifier
-            .fillMaxHeight()
             .fillMaxWidth()
-    ){
-        Surface (
+            .fillMaxHeight(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
             modifier = Modifier
-                .padding(3.dp)
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.background),
-            shape = RoundedCornerShape(corner = CornerSize(6.dp)),
-            border = BorderStroke(
-                width = 2.dp,
-                color = Color.LightGray
-            )
-        ){
-            AllCategories(authViewModel)
+                .fillMaxSize()
+                .padding(defaultPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Spacer(modifier = Modifier.height(defaultPadding))
+                    CreateImageProfile(painterResource(id = R.drawable.profile_pic), Modifier)
+                    HorizontalDivider()
+                    CreateProfileInfo()
+                }
+            }
+            Spacer(modifier = Modifier.height(defaultPadding))
+            ProfileCategory(navController, authViewModel)
         }
     }
 }
 
 @Composable
-fun AllCategories(authViewModel: AuthViewModel) {
-    Column {
-        //Edit Profile
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+fun ProfileCategory(navController: NavController, authViewModel: AuthViewModel){
+    Surface(
+        modifier = Modifier
+            .padding(3.dp)
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        shape = RoundedCornerShape(corner = CornerSize(6.dp)),
+        border = BorderStroke(2.dp, Color.LightGray)
+    ) {
+        Column {
+            // Profile button that requires authViewModel, such as Edit Profile
+            ProfileButtonWithAuth(
+                authViewModel = authViewModel,
+                iconRes = R.drawable.edit_profile,
+                title = "Edit Profile",
+                route = "edit_profile",
+                navController = navController
+            )
+            // Normal Profile buttons
+            ProfileButton(navController, R.drawable.settings, "Settings", R.string.Settings, "settings")
+            ProfileButton(navController, R.drawable.faq, "FAQs", R.string.FAQs, "faqs")
+            // Logout button with authViewModel
+            LogoutButton(authViewModel)
+        }
+    }
+}
+
+//Edit Profile
+@Composable
+fun ProfileButtonWithAuth(
+    authViewModel: AuthViewModel,
+    iconRes: Int,
+    title: String,
+    route: String,
+    navController: NavController
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = {
+                // You can handle additional authViewModel logic here if needed
+                navController.navigate(route)
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Button(
-                onClick = {  },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.edit_profile),
-                        contentDescription = "Edit Profile",
-                        modifier = Modifier.size(50.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(alignment = Alignment.CenterVertically)
-                    ) {
-                        Text(text = "Edit Profile", fontWeight = FontWeight.Bold)
-                        Text(text = stringResource(id = R.string.EditProfile))
-                    }
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = title,
+                    modifier = Modifier.size(50.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(text = title, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(id = R.string.EditProfile))
                 }
             }
         }
+    }
+}
 
-        //Settings
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+//Settings & FAQs
+@Composable
+fun ProfileButton(navController: NavController, iconRes: Int, title: String, descriptionResId:Int, route: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = { navController.navigate(route) },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Button(
-                onClick = {  },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.settings),
-                        contentDescription = "Settings",
-                        modifier = Modifier.size(50.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(alignment = Alignment.CenterVertically)
-                    ) {
-                        Text(text = "Settings", fontWeight = FontWeight.Bold)
-                        Text(text = stringResource(id = R.string.Settings))
-                    }
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = title,
+                    modifier = Modifier.size(50.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(text = title, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(id = descriptionResId))
                 }
             }
         }
+    }
+}
 
-        //FAQs
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+@Composable
+fun LogoutButton(authViewModel: AuthViewModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = { authViewModel.signout() },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Button(
-                onClick = {  },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.faq),
-                        contentDescription = "FAQs",
-                        modifier = Modifier.size(50.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(alignment = Alignment.CenterVertically)
-                    ) {
-                        Text(text = "FAQs", fontWeight = FontWeight.Bold)
-                        Text(text = stringResource(id = R.string.FAQs))
-                    }
-                }
-            }
-        }
-
-        //Logout
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { authViewModel.signout() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logout),
-                        contentDescription = "Logout",
-                        modifier = Modifier.size(50.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(alignment = Alignment.CenterVertically)
-                    ) {
-                        Text(text = "Logout", fontWeight = FontWeight.Bold)
-                        Text(text = stringResource(id = R.string.Logout))
-                    }
+                Image(
+                    painter = painterResource(id = R.drawable.logout),
+                    contentDescription = "Logout",
+                    modifier = Modifier.size(50.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(text = "Logout", fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(id = R.string.Logout))
                 }
             }
         }

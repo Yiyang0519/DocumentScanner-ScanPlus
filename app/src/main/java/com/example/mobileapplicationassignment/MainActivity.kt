@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
 
     private val authViewModel by viewModels<AuthViewModel>()
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

@@ -90,7 +90,7 @@ fun UserProfile(authViewModel: AuthViewModel) {
                     ) {
                         Spacer(modifier = Modifier.height(defaultPadding))
                         CreateImageProfile(
-                            painterResource(id = R.drawable.google_icon),
+                            painterResource(id = R.drawable.profile_pic),
                             modifier = Modifier
                         )
                         HorizontalDivider()

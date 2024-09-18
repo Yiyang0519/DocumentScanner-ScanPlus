@@ -81,7 +81,7 @@ fun UserProfile(authViewModel: AuthViewModel) {
                 //UserSettings(currentNickname = , currentEmail = )
             }
             composable("settings") {
-                GeneralSettings()
+                GeneralSettings(navControllerOld = navController)
             }
             composable("faqs") {
                 FAQScreen(navController = navController)

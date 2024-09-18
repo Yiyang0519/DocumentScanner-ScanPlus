@@ -318,8 +318,8 @@ fun HomeScreen(pdfViewModel: PdfViewModel, navController: NavController, authVie
                         pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) }
                     }
 
-                    // Limit to a maximum of 5 items
-                    val limitedList = filteredList.take(5)
+                    // Reverse the list and then take the last 5 items
+                    val limitedList = filteredList.asReversed().take(5)
 
                     if (limitedList.isEmpty()) {
                         ErrorScreen(message = "No PDF found")

@@ -2,6 +2,10 @@ package com.example.mobileapplicationassignment.frontEndUi.pdfLists
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,7 +51,17 @@ import com.example.mobileapplicationassignment.frontEndUi.screen.components.PdfL
 import com.example.mobileapplicationassignment.frontEndUi.screen.components.RenameDeleteDialog
 import com.example.mobileapplicationassignment.utils.showToast
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
+import com.example.mobileapplicationassignment.models.PdfEntity
 import com.example.mobileapplicationassignment.utils.Resource
+import com.example.mobileapplicationassignment.utils.copyPdfFileToAppDirectory
+import com.example.mobileapplicationassignment.utils.getFileSize
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,30 +78,59 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
     val message = pdfViewModel.message
 
     var searchQuery by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
+    var filterExpanded by remember { mutableStateOf(false) }
+    var orderExpanded by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("None") }
+    var selectedOrder by remember { mutableStateOf("Ascending") }
 
-    val filterOptions = listOf("None", "Date", "Name", "Size")
+    val filterOptions = listOf("None", "Date&Time", "Alphabet", "Size")
+    val orderOptions = listOf("Ascending", "Descending")
 
-    LaunchedEffect(Unit) {
-        message.collect {
-            when (it) {
-                is Resource.Success -> {
-                    context.showToast(it.data)
+    var originalPdfList by remember { mutableStateOf<List<PdfEntity>>(emptyList()) }
+
+    // Scanner launcher (omitted for brevity)
+    val scannerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val scanningResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
+
+                scanningResult?.pdf?.let { pdf ->
+                    Log.d("pdfName", pdf.uri.lastPathSegment.toString())
+
+                    val date = Date()
+                    val fileName = SimpleDateFormat(
+                        "dd-MM-yyyy HH:mm:ss",
+                        Locale.getDefault()
+                    ).format(date) + ".pdf"
+
+                    copyPdfFileToAppDirectory(
+                        context,
+                        pdf.uri, fileName
+                    )
+
+                    val pdfEntity = PdfEntity(
+                        UUID.randomUUID().toString(),
+                        fileName,
+                        getFileSize(context, fileName),
+                        date
+                    )
+
+                    pdfViewModel.insertPdf(pdfEntity)
                 }
-                is Resource.Error -> {
-                    context.showToast(it.message)
-                }
-                Resource.Idle -> {}
-                Resource.Loading -> {}
             }
         }
+
+    val scanner = remember {
+        GmsDocumentScanning.getClient(
+            GmsDocumentScannerOptions.Builder()
+                .setGalleryImportAllowed(true)
+                .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
+                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL).build()
+        )
     }
 
-    // ... (scanner setup remains unchanged)
-
     Scaffold(
-        topBar = @Composable {
+        topBar = {
             TopAppBar(
                 title = {
                     Row(
@@ -110,7 +153,14 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    // ... (scanner launch remains unchanged)
+                    scanner.getStartScanIntent(activity).addOnSuccessListener {
+                        scannerLauncher.launch(
+                            IntentSenderRequest.Builder(it).build()
+                        )
+                    }.addOnFailureListener {
+                        it.printStackTrace()
+                        context.showToast(it.message.toString())
+                    }
                 },
                 text = {
                     Text(text = stringResource(id = R.string.scan))
@@ -167,19 +217,47 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Filter by: $selectedFilter")
-                TextButton(onClick = { expanded = true }) {
+                TextButton(onClick = { filterExpanded = true }) {
                     Text("Select Filter")
                 }
                 androidx.compose.material3.DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = filterExpanded,
+                    onDismissRequest = { filterExpanded = false }
                 ) {
                     filterOptions.forEach { filterOption ->
                         androidx.compose.material3.DropdownMenuItem(
                             text = { Text(filterOption) },
                             onClick = {
                                 selectedFilter = filterOption
-                                expanded = false
+                                filterExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Order Dropdown (Ascending/Descending)
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Order: $selectedOrder")
+                TextButton(onClick = { orderExpanded = true }) {
+                    Text("Select Order")
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = orderExpanded,
+                    onDismissRequest = { orderExpanded = false }
+                ) {
+                    orderOptions.forEach { orderOption ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(orderOption) },
+                            onClick = {
+                                selectedOrder = orderOption
+                                orderExpanded = false
                             }
                         )
                     }
@@ -189,23 +267,43 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
             // Display Result
             pdfState.DisplayResult(
                 onLoading = {
-                    // Loading UI
+                    // Loading UI (if needed)
                 },
                 onSuccess = { pdfList ->
-                    val filteredList = if (searchQuery.isEmpty()) {
-                        pdfList
-                    } else {
-                        pdfList.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
+                    // Store original list
+                    if (originalPdfList.isEmpty()) {
+                        originalPdfList = pdfList
                     }
 
-                    // Apply sorting based on selected filter
+                    // Filter and search the list
+                    val filteredList = if (searchQuery.isEmpty()) {
+                        originalPdfList
+                    } else {
+                        originalPdfList.filter { it.name.contains(searchQuery, ignoreCase = true) }
+                    }
+
+                    // Apply sorting based on selected filter and order
                     val sortedList = when (selectedFilter) {
-                        "Date" -> filteredList.sortedByDescending { it.lastModifiedTime }
-                        "Name" -> filteredList.sortedBy { it.name }
-                        "Size" -> filteredList.sortedBy { it.size.toLongOrNull() ?: 0L }
+                        "Date & Time" -> if (selectedOrder == "Ascending") {
+                            filteredList.sortedBy { it.lastModifiedTime }
+                        } else {
+                            filteredList.sortedByDescending { it.lastModifiedTime }
+                        }
+                        "Alphabet" -> if (selectedOrder == "Ascending") {
+                            filteredList.sortedBy { it.name }
+                        } else {
+                            filteredList.sortedByDescending { it.name }
+                        }
+                        "Size" -> if (selectedOrder == "Ascending") {
+                            filteredList.sortedBy { it.size.toLongOrNull() ?: 0L }
+                        } else {
+                            filteredList.sortedByDescending { it.size.toLongOrNull() ?: 0L }
+                        }
                         else -> filteredList
                     }
 
+                    // Display sorted results
                     if (sortedList.isEmpty()) {
                         ErrorScreen(message = "No PDF found")
                     } else {
@@ -232,5 +330,7 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
         }
     }
 }
+
+
 
 

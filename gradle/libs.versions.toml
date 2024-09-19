@@ -1,4 +1,6 @@
 [versions]
+accompanistPermissions = "0.36.0"
+accompanistPermissionsVersion = "0.23.1"
 agp = "8.5.2"
 cameraCamera2 = "1.3.4"
 coreSplashscreen = "1.0.1"
@@ -31,6 +33,8 @@ firebaseAuth = "23.0.0"
 runtimeLivedata = "1.7.1"
 
 [libraries]
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+accompanist-permissions-v0231 = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCamera2" }

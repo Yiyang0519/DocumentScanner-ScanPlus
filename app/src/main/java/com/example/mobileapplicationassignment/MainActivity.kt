@@ -50,6 +50,7 @@ import com.example.mobileapplicationassignment.frontEndUi.signUp.PolicyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.PrivacyScreen
 import com.example.mobileapplicationassignment.frontEndUi.signUp.RegisterScreen
 import com.example.mobileapplicationassignment.frontEndUi.tools.ImageFileImport
+import com.example.mobileapplicationassignment.frontEndUi.tools.MainScreen
 import com.example.mobileapplicationassignment.frontEndUi.tools.PdfConverter
 import com.example.mobileapplicationassignment.frontEndUi.tools.TextRecognition
 import com.example.mobileapplicationassignment.frontEndUi.tools.ToolsScreen
@@ -225,7 +226,7 @@ fun AuthenticatedScreen(
             }
             composable("tools") { ToolsScreen(navController) }
             composable("profile") { UserProfile(authViewModel) }
-            composable("text_recognition") { TextRecognition(navController) }
+            composable("text_recognition") { MainScreen(navController) }
             composable("pdf_converter") { PdfConverter(navController) }
             composable("image_file_import") { ImageFileImport(pdfViewModel, navController) }
             }

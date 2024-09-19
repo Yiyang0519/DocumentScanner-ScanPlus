@@ -2,10 +2,6 @@ package com.example.mobileapplicationassignment.frontEndUi.pdfLists
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,19 +45,10 @@ import com.example.mobileapplicationassignment.frontEndUi.common.ErrorScreen
 import com.example.mobileapplicationassignment.frontEndUi.common.LoadingScreen
 import com.example.mobileapplicationassignment.frontEndUi.screen.components.PdfLayout
 import com.example.mobileapplicationassignment.frontEndUi.screen.components.RenameDeleteDialog
-import com.example.mobileapplicationassignment.utils.copyPdfFileToAppDirectory
 import com.example.mobileapplicationassignment.utils.showToast
 import com.example.mobileapplicationassignment.frontEndUi.viewmodels.PdfViewModel
-import com.example.mobileapplicationassignment.models.PdfEntity
 import com.example.mobileapplicationassignment.utils.Resource
-import com.example.mobileapplicationassignment.utils.getFileSize
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.UUID
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

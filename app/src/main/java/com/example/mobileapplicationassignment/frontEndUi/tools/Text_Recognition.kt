@@ -1,78 +1,105 @@
 @file:Suppress("DEPRECATION")
+@file:OptIn(ExperimentalPermissionsApi::class)
 
 package com.example.mobileapplicationassignment.frontEndUi.tools
 
+import android.util.Size
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.provider.MediaStore
-import android.util.Log
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.CameraController
+import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.mobileapplicationassignment.R
-import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.PermissionState
+
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
+@Composable
+fun MainScreen(navController: NavController) {
+    // Remember the camera permission state
+    val cameraPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+
+    MainContent(
+        hasPermission = cameraPermissionState.hasPermission,
+        onRequestPermission = cameraPermissionState::launchPermissionRequest,
+        navController = navController
+    )
+}
+
+@Composable
+private fun MainContent(
+    hasPermission: Boolean,
+    onRequestPermission: () -> Unit,
+    navController: NavController
+) {
+    // If permission is granted, show the TextRecognition camera screen
+    if (hasPermission) {
+        TextRecognition(navController = navController)
+    } else {
+        // Show a screen asking for permission
+        NoPermissionScreen(onRequestPermission)
+    }
+}
+
+@Composable
+fun NoPermissionScreen(onRequestPermission: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(text = "Camera permission is required to use this feature.")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRequestPermission) {
+            Text("Grant Permission")
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnsafeOptInUsageError", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TextRecognition(navController: NavController) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     var isUsingCamera by remember { mutableStateOf(false) }
-    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    val executor = remember { Executors.newSingleThreadExecutor() }
+    var detectedText by remember { mutableStateOf("No text detected yet...") }
     val bitmapState: MutableState<Bitmap?> = remember { mutableStateOf(null) }
     val recognizedText = remember { mutableStateOf("") }
-    val realTimeText = remember { mutableStateOf("") }
 
     // Image picker for selecting from gallery
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -87,34 +114,12 @@ fun TextRecognition(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.scan_icon),
-                            contentDescription = "Text Recognition",
-                            modifier = Modifier.size(40.dp)
-                        )
-                        Text(
-                            text = "Text Recognition",
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
+                title = { Text("Text Recognition") },
                 actions = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_arrow_back_24),
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
+                        Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+                }
             )
         }
     ) { paddingValues ->
@@ -126,16 +131,41 @@ fun TextRecognition(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Real-time Text Recognition using CameraX
             if (isUsingCamera) {
-                /*CameraPreviewView(
-                    realTimeText = realTimeText, // Pass MutableState
-                    executor = executor,
-                    cameraProviderFuture = cameraProviderFuture,
-                    lifecycleOwner = lifecycleOwner
-                )*/
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Real-time Text: ${realTimeText.value}", color = Color.Black)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        CameraPreview(
+                            detectedText = detectedText,
+                            onTextUpdated = { updatedText -> detectedText = updatedText }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Text(
+                            text = "Real-time Detected Text: $detectedText",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
+                    }
+                }
             } else if (bitmapState.value != null) {
                 Image(
                     bitmap = bitmapState.value!!.asImageBitmap(),
@@ -174,66 +204,101 @@ fun TextRecognition(navController: NavController) {
     }
 }
 
-/*@androidx.annotation.OptIn(ExperimentalGetImage::class)
-@SuppressLint("UnsafeOptInUsageError", "RememberReturnType")
 @Composable
-fun CameraPreviewView(
-    realTimeText: MutableState<String>,  // Make it MutableState so we can update it
-    executor: ExecutorService,
-    cameraProviderFuture: ListenableFuture<ProcessCameraProvider>,
-    lifecycleOwner: LifecycleOwner
+fun CameraPreview(
+    detectedText: String,
+    onTextUpdated: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val previewView = remember { PreviewView(context) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraController = remember { LifecycleCameraController(context) }
 
-    LaunchedEffect(Unit) {
-        try {
-            val cameraProvider = cameraProviderFuture.get() // Use get() for ListenableFuture
-
-            // Create Preview
-            val preview = Preview.Builder().build().also { preview ->
-                preview.setSurfaceProvider(previewView.surfaceProvider)
-            }
-
-            // Select the back camera
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            // Image Analysis
-            val imageAnalyzer = ImageAnalysis.Builder().build().also { analysis ->
-                analysis.setAnalyzer(executor) { imageProxy: ImageProxy ->
-                    val mediaImage = imageProxy.image
-                    if (mediaImage != null) {
-                        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-                        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-                        recognizer.process(image)
-                            .addOnSuccessListener { visionText ->
-                                // Update real-time recognized text
-                                realTimeText.value = visionText.text // Update the MutableState value
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("CameraX", "Text recognition failed", e)
-                            }
-                            .addOnCompleteListener {
-                                imageProxy.close()
-                            }
-                    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp),
+            factory = { context ->
+                PreviewView(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    setBackgroundColor(android.graphics.Color.BLACK)
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                    scaleType = PreviewView.ScaleType.FILL_START
+                }.also { previewView ->
+                    startTextRecognition(
+                        context = context,
+                        cameraController = cameraController,
+                        lifecycleOwner = lifecycleOwner,
+                        previewView = previewView,
+                        onDetectedTextUpdated = onTextUpdated
+                    )
                 }
             }
-
-            // Bind the camera lifecycle
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner, cameraSelector, preview, imageAnalyzer
-            )
-        } catch (e: Exception) {
-            Log.e("CameraX", "Failed to bind camera", e)
-        }
-    }
-
-    // Display the camera preview
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
+        )
     }
 }
-*/
+
+private fun startTextRecognition(
+    context: Context,
+    cameraController: LifecycleCameraController,
+    lifecycleOwner: LifecycleOwner,
+    previewView: PreviewView,
+    onDetectedTextUpdated: (String) -> Unit
+) {
+    cameraController.imageAnalysisTargetSize = CameraController.OutputSize(Size(250, 250))
+    cameraController.setImageAnalysisAnalyzer(
+        ContextCompat.getMainExecutor(context),
+        TextRecognitionAnalyzer(onDetectedTextUpdated)
+    )
+    cameraController.bindToLifecycle(lifecycleOwner)
+    previewView.controller = cameraController
+}
+
+class TextRecognitionAnalyzer(
+    private val onDetectedTextUpdated: (String) -> Unit
+) : ImageAnalysis.Analyzer {
+
+    companion object {
+        const val THROTTLE_TIMEOUT_MS = 500L
+    }
+
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+    @androidx.camera.core.ExperimentalGetImage
+    override fun analyze(imageProxy: ImageProxy) {
+        scope.launch {
+            val mediaImage = imageProxy.image ?: run {
+                imageProxy.close()
+                return@launch
+            }
+            val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+
+            suspendCoroutine { continuation ->
+                textRecognizer.process(inputImage)
+                    .addOnSuccessListener { visionText ->
+                        val detectedText = visionText.text
+                        if (detectedText.isNotBlank()) {
+                            onDetectedTextUpdated(detectedText)
+                        }
+                    }
+                    .addOnCompleteListener {
+                        continuation.resume(Unit)
+                    }
+            }
+
+            delay(THROTTLE_TIMEOUT_MS)
+        }.invokeOnCompletion { exception ->
+            exception?.printStackTrace()
+            imageProxy.close()
+        }
+    }
+}

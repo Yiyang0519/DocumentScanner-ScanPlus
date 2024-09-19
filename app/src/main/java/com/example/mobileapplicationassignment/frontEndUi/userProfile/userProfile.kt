@@ -140,20 +140,25 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    TextButton(onClick = { authViewModel.signOut() }) {
+                        Text(text = "Logout", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
                     Text(
                         text = "Profile",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        fontSize = 30.sp,
-                        modifier = Modifier.padding(start = 160.dp, top = 12.dp)
+                        fontSize = 30.sp
                     )
-                    TextButton(onClick = { authViewModel.signOut() }) {
-                        Text(text = "Logout", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    }
                 }
             }
 
@@ -292,41 +297,6 @@ fun ProfileButton(navController: NavController, iconRes: Int, title: String, des
 }
 
 @Composable
-fun LogoutButton(authViewModel: AuthViewModel) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(
-            onClick = { authViewModel.signOut() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logout),
-                    contentDescription = "Logout",
-                    modifier = Modifier.size(50.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(text = "Logout", fontWeight = FontWeight.Bold)
-                    Text(text = stringResource(id = R.string.Logout))
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun CreateImageProfile(
     image: Painter,
     modifier: Modifier = Modifier
@@ -345,48 +315,6 @@ fun CreateImageProfile(
             modifier = Modifier.size(135.dp),
             contentScale = ContentScale.Crop)
     }
-}
-
-@Composable
-fun CreateProfileInfo(username: String,email: String) {
-    // Now update the UI using the state variables
-    UpdateProfileInfo(username, email)
-}
-@Composable
-fun UpdateProfileInfo(username:String, email:String){
-
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        ProfileText(
-            text = username
-        )
-
-        ProfileText(
-            text = email
-            )
-        }
-}
-
-@Composable
-fun ProfileText(
-    text: String,
-    modifier: Modifier = Modifier,
-    color : Color = Color.DarkGray,
-    fontSize: TextUnit = 18.sp
-){
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        fontSize = fontSize,
-        color = color,
-        modifier = modifier
-    )
 }
 
 @Preview(showSystemUi = true)

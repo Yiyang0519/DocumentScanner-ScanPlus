@@ -83,7 +83,7 @@ fun UserSettings(currentNickname: String, currentEmail: String, navController: N
             modifier = Modifier.fillMaxWidth()
         ){
             TopAppBar(
-                title = { Text(text = "FAQs") },
+                title = { Text(text = "User Settings") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White

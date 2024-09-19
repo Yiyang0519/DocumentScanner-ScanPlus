@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -52,24 +54,33 @@ fun FAQScreen(navController: NavController) {
             )
         },
         content = { padding ->
-            Column(
+            // 替换为 LazyColumn 以支持滚动
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
                     .padding(16.dp)
             ) {
-                Text(
-                    text = "Frequently asked questions",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                )
-                FAQItem(question = "How can I register an account?", answer = "On your login page, click the Sign Up text to register a new account.")
-                FAQItem(question = "How to edit my user profile?", answer = "On your profile page, click the Edit Profile button to modify your information.")
-                FAQItem(question = "How to change mt password?", answer = "On your profile page, click the Edit Profile button to modify your information.")
-                FAQItem(question = "How to delete my account?", answer = "Please contact Customer Support (customerservice@bioplus.com) for assistance in deleting your account.")
+                item {
+                    Text(
+                        text = "Frequently asked questions",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    )
+                }
+
+                // 用 item 创建 FAQ 项目
+                items(listOf(
+                    "How can I register an account?" to "On your login page, click the Sign Up text to register a new account.",
+                    "How to edit my user profile?" to "On your profile page, click the Edit Profile button to modify your information.",
+                    "How to change my password?" to "On your profile page, click the Edit Profile button to modify your information.",
+                    "How to delete my account?" to "Please contact Customer Support (customerservice@bioplus.com) for assistance in deleting your account."
+                )) { (question, answer) ->
+                    FAQItem(question = question, answer = answer)
+                }
             }
         }
     )

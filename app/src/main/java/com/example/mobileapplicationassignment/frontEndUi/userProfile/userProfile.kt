@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,10 +41,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -135,7 +132,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(160.dp)
                     .background(MaterialTheme.colorScheme.primary)
             ) {
                 Row(
@@ -144,7 +141,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = { authViewModel.signOut() }) {
-                        Text(text = "Logout", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(text = "Logout", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 20.dp))
                     }
                 }
                 Row(
@@ -157,13 +154,14 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        fontSize = 30.sp
+                        fontSize = 30.sp,
+                        modifier = Modifier.padding(top = 30.dp, end = 10.dp)
                     )
                 }
             }
 
             Column(
-                modifier = Modifier.offset(y = (-110).dp),
+                modifier = Modifier.offset(y = (-100).dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Profile picture

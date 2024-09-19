@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.example.mobileapplicationassignment.frontEndUi.settings
 
 import android.widget.Toast
@@ -45,12 +43,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.mobileapplicationassignment.frontEndUi.components.HeaderText
-import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignmentTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch

@@ -54,7 +54,6 @@ fun FAQScreen(navController: NavController) {
             )
         },
         content = { padding ->
-            // 替换为 LazyColumn 以支持滚动
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -71,8 +70,6 @@ fun FAQScreen(navController: NavController) {
                             .padding(bottom = 16.dp)
                     )
                 }
-
-                // 用 item 创建 FAQ 项目
                 items(listOf(
                     "How can I register an account?" to "On your login page, click the Sign Up text to register a new account.",
                     "How to edit my user profile?" to "On your profile page, click the Edit Profile button to modify your information.",

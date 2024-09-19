@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mobileapplicationassignment.frontEndUi.login.ForgotPasswordScreen
 import com.example.mobileapplicationassignment.frontEndUi.login.LoginScreen
 import com.example.mobileapplicationassignment.frontEndUi.pdfLists.PdfListsScreen
 import com.example.mobileapplicationassignment.frontEndUi.screen.HomeScreen
@@ -237,6 +238,7 @@ fun InitialNavigation(authViewModel: AuthViewModel) {
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController, authViewModel) }
         composable("register") { RegisterScreen(navController, authViewModel) }
+        composable("forgotPassword") { ForgotPasswordScreen(navController)}
         composable("privacy") { PrivacyScreen(navController) }
         composable("policy") { PolicyScreen(navController)}
     }

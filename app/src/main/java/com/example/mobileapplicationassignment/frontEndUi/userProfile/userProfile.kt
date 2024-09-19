@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,6 +28,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -58,7 +61,6 @@ import com.example.mobileapplicationassignment.ui.theme.MobileApplicationAssignm
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
-val defaultPadding = 20.dp
 
 @Composable
 fun UserProfile(authViewModel: AuthViewModel) {
@@ -77,8 +79,10 @@ fun UserProfile(authViewModel: AuthViewModel) {
             composable("profile_screen") {
                 ProfileScreen(authViewModel, navController)
             }
-            composable("edit_profile") {
-                //UserSettings(currentNickname = , currentEmail = )
+            composable("edit_profile/{nickname}/{email}") { backStackEntry ->
+                val username = backStackEntry.arguments?.getString("nickname") ?: "Unknown"
+                val email = backStackEntry.arguments?.getString("email") ?: "Unknown"
+                UserSettings(username, email, navController)
             }
             composable("settings") {
                 GeneralSettings(navControllerOld = navController)
@@ -91,53 +95,104 @@ fun UserProfile(authViewModel: AuthViewModel) {
 }
 
 @Composable
-fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController){
+fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    // State to hold the username and email
+    var username by remember { mutableStateOf("Loading...") }
+    var email by remember { mutableStateOf("Loading...") }
+
+    // Use LaunchedEffect to fetch data from Firebase
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance("https://scanplus-befd8-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .reference.child("user").child(userId)
+            database.get().addOnSuccessListener { snapshot ->
+                username = snapshot.child("username").getValue(String::class.java) ?: "Unknown User"
+                email = snapshot.child("email").getValue(String::class.java) ?: "Unknown Email"
+            }.addOnFailureListener { exception ->
+                Log.e("Firebase", "Error fetching data", exception)
+            }
+        }
+    }
+
+    // Main card layout
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .padding(top = 15.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(defaultPadding),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(150.dp)
                     .background(MaterialTheme.colorScheme.primary)
             ) {
-                Column(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Spacer(modifier = Modifier.height(defaultPadding))
-                    CreateImageProfile(painterResource(id = R.drawable.profile_pic), Modifier)
-                    HorizontalDivider()
-                    CreateProfileInfo()
+                    Text(
+                        text = "Profile",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontSize = 30.sp,
+                        modifier = Modifier.padding(start = 160.dp, top = 12.dp)
+                    )
+                    TextButton(onClick = { authViewModel.signOut() }) {
+                        Text(text = "Logout", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(defaultPadding))
-            ProfileCategory(navController, authViewModel)
+
+            Column(
+                modifier = Modifier.offset(y = (-110).dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Profile picture
+                CreateImageProfile(
+                    painterResource(id = R.drawable.profile_pic),
+                    Modifier
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = username,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = email,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+            // Profile categories like Edit Profile, Settings and FAQs
+            ProfileCategory(navController, authViewModel, username, email)
         }
     }
 }
 
+
 @Composable
-fun ProfileCategory(navController: NavController, authViewModel: AuthViewModel){
+fun ProfileCategory(navController: NavController, authViewModel: AuthViewModel, username: String, email: String){
     Surface(
         modifier = Modifier
-            .padding(3.dp)
+            .offset(y = (-85).dp)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        shape = RoundedCornerShape(corner = CornerSize(6.dp)),
-        border = BorderStroke(2.dp, Color.LightGray)
+            .background(MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(corner = CornerSize(6.dp))
     ) {
         Column {
             // Profile button that requires authViewModel, such as Edit Profile
@@ -145,14 +200,12 @@ fun ProfileCategory(navController: NavController, authViewModel: AuthViewModel){
                 authViewModel = authViewModel,
                 iconRes = R.drawable.edit_profile,
                 title = "Edit Profile",
-                route = "edit_profile",
+                route = "edit_profile/${username}/${email}",
                 navController = navController
             )
             // Normal Profile buttons
             ProfileButton(navController, R.drawable.settings, "Settings", R.string.Settings, "settings")
             ProfileButton(navController, R.drawable.faq, "FAQs", R.string.FAQs, "faqs")
-            // Logout button with authViewModel
-            LogoutButton(authViewModel)
         }
     }
 }
@@ -170,7 +223,7 @@ fun ProfileButtonWithAuth(
         modifier = Modifier
             .fillMaxWidth()
             .padding(6.dp)
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -194,8 +247,8 @@ fun ProfileButtonWithAuth(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(text = title, fontWeight = FontWeight.Bold)
-                    Text(text = stringResource(id = R.string.EditProfile))
+                    Text(text = title, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(text = stringResource(id = R.string.EditProfile), color = Color.White)
                 }
             }
         }
@@ -209,7 +262,7 @@ fun ProfileButton(navController: NavController, iconRes: Int, title: String, des
         modifier = Modifier
             .fillMaxWidth()
             .padding(6.dp)
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -230,8 +283,8 @@ fun ProfileButton(navController: NavController, iconRes: Int, title: String, des
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(text = title, fontWeight = FontWeight.Bold)
-                    Text(text = stringResource(id = descriptionResId))
+                    Text(text = title, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(text = stringResource(id = descriptionResId), color = Color.White)
                 }
             }
         }
@@ -249,7 +302,7 @@ fun LogoutButton(authViewModel: AuthViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            onClick = { authViewModel.signout() },
+            onClick = { authViewModel.signOut() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -295,27 +348,7 @@ fun CreateImageProfile(
 }
 
 @Composable
-fun CreateProfileInfo() {
-    val userId = FirebaseAuth.getInstance().currentUser?.uid
-
-    // State to hold the username and email
-    var username by remember { mutableStateOf("Loading...") }
-    var email by remember { mutableStateOf("Loading...") }
-
-    // Use LaunchedEffect to fetch data from Firebase
-    LaunchedEffect(userId) {
-        if (userId != null) {
-            val database = FirebaseDatabase.getInstance("https://scanplus-befd8-default-rtdb.asia-southeast1.firebasedatabase.app").reference.child("user").child(userId)
-            database.get().addOnSuccessListener { snapshot ->
-                username = snapshot.child("username").getValue(String::class.java) ?: "Unknown User"
-                email = snapshot.child("email").getValue(String::class.java) ?: "Unknown Email"
-            }.addOnFailureListener { exception ->
-                // Handle error
-                Log.e("Firebase", "Error fetching data", exception)
-            }
-        }
-    }
-
+fun CreateProfileInfo(username: String,email: String) {
     // Now update the UI using the state variables
     UpdateProfileInfo(username, email)
 }

@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +51,7 @@ fun GeneralSettings(navControllerOld: NavController) {
 
     var title by remember { mutableStateOf("Settings") }
 
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -80,7 +82,7 @@ fun GeneralSettings(navControllerOld: NavController) {
             }
             composable("notificationSettings") {
                 title = "Notification"
-                NotificationSettings(navControllerNew)
+                NotificationSettings(context)
             }
             composable("helpSettings") {
                 title = "Help"

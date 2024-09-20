@@ -18,6 +18,7 @@ import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -114,12 +115,36 @@ fun TextRecognition(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Text Recognition") },
-                actions = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = "Back")
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Display the drawable as an image on the left side of the title
+                        Image (
+                            painter = painterResource(id = R.drawable.text_recognition), // Replace with your drawable resource ID
+                            contentDescription = "Text Recognition",
+                            modifier = Modifier.size(40.dp) // Adjust the size as necessary
+                        )
+                        Text(
+                            text = "Text Recognition",
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
-                }
+                },
+                actions = {
+                    // Set the back button icon to white
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_arrow_back_24), // Replace with your drawable resource ID
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary // Set the tint to white or any desired color
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     ) { paddingValues ->
@@ -138,35 +163,44 @@ fun TextRecognition(navController: NavController) {
                         .fillMaxHeight(),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    Row (
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
-                    ){
+                    ) {
                         CameraPreview(
                             detectedText = detectedText,
-                            onTextUpdated = { updatedText -> detectedText = updatedText }
+                            onTextUpdated = { updatedText ->
+                                detectedText = updatedText
+                                recognizedText.value = updatedText // Update the recognized text in real time
+                            }
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Row (
+                    // Title for detected text
+                    Text(
+                        text = "Real-time Detected Text:",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 6.dp, bottom = 2.dp)
+                    )
+
+                    TextField(
+                        value = recognizedText.value,
+                        onValueChange = {},
+                        readOnly = true,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(
-                            text = "Real-time Detected Text: $detectedText",
-                            color = Color.Black,
-                            modifier = Modifier
-                                .padding(8.dp)
+                            .padding(8.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
                         )
-                    }
+                    )
                 }
-            } else if (bitmapState.value != null) {
+            }
+            else if (bitmapState.value != null) {
                 Image(
                     bitmap = bitmapState.value!!.asImageBitmap(),
                     contentDescription = null,
@@ -215,23 +249,20 @@ fun CameraPreview(
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp),
+            .size(250.dp)  // Set fixed size of 250.dp x 250.dp
+            .background(Color.Black),  // Optional: set background color
         contentAlignment = Alignment.Center
     ) {
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
+            modifier = Modifier.fillMaxSize(),  // Fill the box size
             factory = { context ->
                 PreviewView(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
-                    setBackgroundColor(android.graphics.Color.BLACK)
                     implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                    scaleType = PreviewView.ScaleType.FILL_START
+                    scaleType = PreviewView.ScaleType.FILL_CENTER  // Centered scaling
                 }.also { previewView ->
                     startTextRecognition(
                         context = context,
@@ -244,7 +275,11 @@ fun CameraPreview(
             }
         )
     }
+
+    // Ensure that the camera output size respects the fixed size
+    cameraController.imageAnalysisTargetSize = CameraController.OutputSize(Size(250, 250))
 }
+
 
 private fun startTextRecognition(
     context: Context,
@@ -267,7 +302,7 @@ class TextRecognitionAnalyzer(
 ) : ImageAnalysis.Analyzer {
 
     companion object {
-        const val THROTTLE_TIMEOUT_MS = 500L
+        const val THROTTLE_TIMEOUT_MS = 1000L
     }
 
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())

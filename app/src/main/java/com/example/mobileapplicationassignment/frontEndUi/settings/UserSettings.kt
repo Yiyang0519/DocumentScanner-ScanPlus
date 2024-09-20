@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
@@ -64,18 +65,20 @@ fun UserSettings(currentNickname: String, currentEmail: String, navController: N
     var newPass1 by remember { mutableStateOf("") }
     var newPass2 by remember { mutableStateOf("") }
 
+    val scrollState = rememberScrollState()
 
     Surface (
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
     ){
         Column (
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ){
             TopAppBar(
                 title = { Text(text = "User Settings") },
@@ -137,7 +140,10 @@ fun UserSettings(currentNickname: String, currentEmail: String, navController: N
                                     if (passwordTask.isSuccessful) {
                                         Toast.makeText(context, "Password updated successfully!", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        Toast.makeText(context, "Error updating password.", Toast.LENGTH_SHORT).show()
+                                        scope.launch {
+                                            Toast.makeText(context, "Fail to update password. Your original password is incorrect!", Toast.LENGTH_SHORT).show()
+                                            kotlinx.coroutines.delay(2000)
+                                        }
                                     }
                                 }
                             }
@@ -160,6 +166,7 @@ fun UserSettings(currentNickname: String, currentEmail: String, navController: N
                     fontSize = 16.sp
                 )
             }
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }

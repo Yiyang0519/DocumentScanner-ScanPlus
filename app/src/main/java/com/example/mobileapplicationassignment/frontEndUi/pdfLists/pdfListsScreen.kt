@@ -68,6 +68,28 @@ import java.util.UUID
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PdfListsScreen(pdfViewModel: PdfViewModel) {
+    // Function to parse size from String to Long
+    fun parseSize(size: String): Long {
+        val regex = "(\\d+)\\s*(KB|MB|GB|bytes)?".toRegex()
+        val matchResult = regex.find(size.trim())
+
+        return when {
+            matchResult != null -> {
+                val value = matchResult.groupValues[1].toLongOrNull() ?: 0L
+                val unit = matchResult.groupValues[2].uppercase()
+
+                when (unit) {
+                    "KB" -> value * 1024 // Convert KB to bytes
+                    "MB" -> value * 1024 * 1024 // Convert MB to bytes
+                    "GB" -> value * 1024 * 1024 * 1024 // Convert GB to bytes
+                    else -> value // Assume bytes if no unit is specified
+                }
+            }
+            else -> 0L // Default to 0 if no match
+        }
+    }
+
+
     LoadingScreen(pdfViewModel = pdfViewModel)
     RenameDeleteDialog(pdfViewModel = pdfViewModel)
 
@@ -83,7 +105,7 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
     var selectedFilter by remember { mutableStateOf("None") }
     var selectedOrder by remember { mutableStateOf("Ascending") }
 
-    val filterOptions = listOf("None", "Date&Time", "Alphabet", "Size")
+    val filterOptions = listOf("None", "Date & Time", "Alphabet", "Size")
     val orderOptions = listOf("Ascending", "Descending")
 
     var originalPdfList by remember { mutableStateOf<List<PdfEntity>>(emptyList()) }
@@ -296,9 +318,9 @@ fun PdfListsScreen(pdfViewModel: PdfViewModel) {
                             filteredList.sortedByDescending { it.name }
                         }
                         "Size" -> if (selectedOrder == "Ascending") {
-                            filteredList.sortedBy { it.size.toLongOrNull() ?: 0L }
+                            filteredList.sortedBy { parseSize(it.size) }
                         } else {
-                            filteredList.sortedByDescending { it.size.toLongOrNull() ?: 0L }
+                            filteredList.sortedByDescending { parseSize(it.size) }
                         }
                         else -> filteredList
                     }

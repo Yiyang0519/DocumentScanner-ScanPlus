@@ -1,4 +1,4 @@
-This is a simple Document Scanner Application for mobile application assignment.
+This is a simple Document Scanner Application using Jetpack Compose in Kotlin for mobile application assignment.
 
 Our application called ScanPlus+
 ================================
